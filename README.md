@@ -31,10 +31,10 @@ tetapi ada beberapa keterbatasan yang kami temui, diantaranya:
 
 * Konversi dari String ke ISO-8583
 * Konversi dari ISO-8583 ke String
+* Menyimpan konfigurasi mapping di database
 
 ## Roadmap ##
 
-* Menyimpan konfigurasi mapping di database
 * User Interface untuk konfigurasi mapping
 * Parsing untuk sub-data-element (misalnya bit 48, 60, dsb)
 * Memproses data binary (misalnya untuk pinblock)
