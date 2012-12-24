@@ -21,6 +21,12 @@ tetapi ada beberapa keterbatasan yang kami temui, diantaranya:
 
 * Konfigurasi hanya bisa di XML dan Java, tidak bisa di database.
 
+## Modul ##
+
+* iso8583-processor-core : Class utama dengan dependensi minimal
+* iso8583-processor-persistence : Support class untuk menyimpan dan mengambil konfigurasi mapping dari database. Menggunakan Spring Data JPA
+* iso8583-processor-restful : Support class untuk mengakses konfigurasi mapping di database melalui HTTP dengan protokol REST
+
 ## Fitur Existing ##
 
 * Konversi dari String ke ISO-8583
