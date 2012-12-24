@@ -27,7 +27,7 @@ public class ProcessorTest {
         Processor processor = new Processor();
         processor.setMapper(configureMapper());
 
-        Message echoRequest = processor.toMessage(echoRequestStream);
+        Message echoRequest = processor.stringToMessage(echoRequestStream);
         assertNotNull(echoRequest.getPrimaryBitmap());
         assertEquals("A220000000800010", echoRequest.getPrimaryBitmapStream());
 
@@ -50,7 +50,7 @@ public class ProcessorTest {
         assertEquals("301", echoRequest.getDataElementContent().get(70));
         assertNull(echoRequest.getDataElementContent().get(39));
 
-        Message echoResponse = processor.toMessage(echoResponseStream);
+        Message echoResponse = processor.stringToMessage(echoResponseStream);
         assertNotNull(echoResponse.getPrimaryBitmap());
         assertNotNull(echoResponse.getSecondaryBitmap());
         assertTrue(echoResponse.isDataElementPresent(3));
@@ -73,6 +73,38 @@ public class ProcessorTest {
         assertNull(echoResponse.getDataElementContent().get(48));
     }
 
+    @Test
+    public void isoMessageToString(){
+        String echoRequestStream  = "0800A22000000080001004000000000000001010102012122408470800000110101010        019ArtiVisi Intermedia301";
+        String echoResponseStream = "0810A2200000028000100400000000000000101010201212240850000000010010101010        019ArtiVisi Intermedia301";
+
+        Processor processor = new Processor();
+        processor.setMapper(configureMapper());
+
+        Message echoRequest = new Message();
+        echoRequest.setMti("0800");
+        echoRequest.getDataElementContent().put(3, "101010");
+        echoRequest.getDataElementContent().put(7, "20121224084708");
+        echoRequest.getDataElementContent().put(11, "000001");
+        echoRequest.getDataElementContent().put(41, "10101010        ");
+        echoRequest.getDataElementContent().put(60, "ArtiVisi Intermedia");
+        echoRequest.getDataElementContent().put(70, "301");
+
+        assertEquals(echoRequestStream, processor.messageToString(echoRequest));
+
+        Message echoResponse = new Message();
+        echoResponse.setMti("0810");
+        echoResponse.getDataElementContent().put(3, "101010");
+        echoResponse.getDataElementContent().put(7, "20121224085000");
+        echoResponse.getDataElementContent().put(11, "000001");
+        echoResponse.getDataElementContent().put(39, "00");
+        echoResponse.getDataElementContent().put(41, "10101010        ");
+        echoResponse.getDataElementContent().put(60, "ArtiVisi Intermedia");
+        echoResponse.getDataElementContent().put(70, "301");
+
+        assertEquals(echoResponseStream, processor.messageToString(echoResponse));
+    }
+
     private Mapper configureMapper(){
         Mapper m = new Mapper();
         m.getDataElement()
@@ -86,12 +118,12 @@ public class ProcessorTest {
 
         m.getDataElement()
             .put(7,
-                new DataElement()
-                        .setNumber(7)
-                        .setLength(14)
-                        .setLengthType(DataElementLength.FIXED)
-                        .setType(DataElementType.NUMERIC)
-        );
+                    new DataElement()
+                            .setNumber(7)
+                            .setLength(14)
+                            .setLengthType(DataElementLength.FIXED)
+                            .setType(DataElementType.NUMERIC)
+            );
 
         m.getDataElement()
             .put(11,
@@ -104,12 +136,12 @@ public class ProcessorTest {
 
         m.getDataElement()
             .put(39,
-                new DataElement()
-                        .setNumber(39)
-                        .setLength(2)
-                        .setLengthType(DataElementLength.FIXED)
-                        .setType(DataElementType.NUMERIC)
-        );
+                    new DataElement()
+                            .setNumber(39)
+                            .setLength(2)
+                            .setLengthType(DataElementLength.FIXED)
+                            .setType(DataElementType.NUMERIC)
+            );
 
         m.getDataElement()
         .put(41,
@@ -122,12 +154,12 @@ public class ProcessorTest {
 
         m.getDataElement()
             .put(60,
-                new DataElement()
-                        .setNumber(60)
-                        .setLengthPrefix(3)
-                        .setLengthType(DataElementLength.VARIABLE)
-                        .setType(DataElementType.ALPHANUMERIC)
-        );
+                    new DataElement()
+                            .setNumber(60)
+                            .setLengthPrefix(3)
+                            .setLengthType(DataElementLength.VARIABLE)
+                            .setType(DataElementType.ALPHANUMERIC)
+            );
 
         m.getDataElement()
         .put(70,

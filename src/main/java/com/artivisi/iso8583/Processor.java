@@ -1,5 +1,6 @@
 package com.artivisi.iso8583;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,10 +23,10 @@ public class Processor {
         this.mapper = mapper;
     }
 
-    public Message toMessage(String stream){
-        LOGGER.debug("[INCOMING] : [{}]", stream);
+    public Message stringToMessage(String stream){
+        LOGGER.debug("[STRING2MESSAGE] : [{}]", stream);
         if(stream == null || stream.trim().length() < MTI_LENGTH + BITMAP_LENGTH) {
-            LOGGER.error("[INCOMING] : Invalid Message [{}]", stream);
+            LOGGER.error("[STRING2MESSAGE] : Invalid Message [{}]", stream);
             throw new IllegalArgumentException("Invalid Message : ["+stream+"]");
         }
 
@@ -41,16 +42,16 @@ public class Processor {
         m.setPrimaryBitmapStream(primaryBitmapStream);
         currentPosition += BITMAP_LENGTH;
 
-        LOGGER.debug("[PROCESSING] : Primary Bitmap Hex : [{}]", primaryBitmapStream);
+        LOGGER.debug("[STRING2MESSAGE] : Primary Bitmap Hex : [{}]", primaryBitmapStream);
 
         String primaryBitmapBinary = new BigInteger(primaryBitmapStream, HEXADECIMAL).toString(BINARY);
-        LOGGER.debug("[PROCESSING] : Primary Bitmap Bin : [{}]", primaryBitmapBinary);
+        LOGGER.debug("[STRING2MESSAGE] : Primary Bitmap Bin : [{}]", primaryBitmapBinary);
 
         if(m.isDataElementPresent(1)) {
             String secondaryBitmapStream = stream
                     .substring(currentPosition,
                             currentPosition + BITMAP_LENGTH);
-            LOGGER.debug("[PROCESSING] : Secondary Bitmap Hex : [{}]", secondaryBitmapStream);
+            LOGGER.debug("[STRING2MESSAGE] : Secondary Bitmap Hex : [{}]", secondaryBitmapStream);
             m.setSecondaryBitmapStream(secondaryBitmapStream);
             currentPosition += BITMAP_LENGTH;
         }
@@ -64,13 +65,13 @@ public class Processor {
 
             DataElement de = mapper.getDataElement().get(i);
             if(de == null){
-                LOGGER.error("[PROCESSING] - [DATA ELEMENT {}] : Not configured", i);
+                LOGGER.error("[STRING2MESSAGE] - [DATA ELEMENT {}] : Not configured", i);
                 throw new IllegalStateException("Invalid Mapper, Data Element [" + i + "] not configured");
             }
 
             if(DataElementLength.FIXED.equals(de.getLengthType())){
                 if(de.getLength() == null || de.getLength() < 1){
-                    LOGGER.error("[PROCESSING] - [DATA ELEMENT {}] : Length not configured for fixed length element", i);
+                    LOGGER.error("[STRING2MESSAGE] - [DATA ELEMENT {}] : Length not configured for fixed length element", i);
                     throw new IllegalStateException("Invalid Mapper, Data Element [" + i + "] length not configured for fixed length element");
                 }
 
@@ -82,7 +83,7 @@ public class Processor {
 
             if(DataElementLength.VARIABLE.equals(de.getLengthType())){
                 if(de.getLengthPrefix() == null || de.getLengthPrefix() < 1){
-                    LOGGER.error("[PROCESSING] - [DATA ELEMENT {}] : Length prefix not configured for variable length element", i);
+                    LOGGER.error("[STRING2MESSAGE] - [DATA ELEMENT {}] : Length prefix not configured for variable length element", i);
                     throw new IllegalStateException("Invalid Mapper, Data Element [" + i + "] length prefix not configured for variable length element");
                 }
 
@@ -95,15 +96,72 @@ public class Processor {
                     currentPosition += length;
                     continue;
                 } catch (NumberFormatException err) {
-                    LOGGER.error("[PROCESSING] - [DATA ELEMENT {}] : Length prefix [{}] cannot be parsed", new Object[]{i, strLength});
+                    LOGGER.error("[STRING2MESSAGE] - [DATA ELEMENT {}] : Length prefix [{}] cannot be parsed", new Object[]{i, strLength});
                     throw err;
                 }
+            }
+
+            LOGGER.error("[STRING2MESSAGE] - [DATA ELEMENT {}] : Length type [{}] not fixed nor variable", new Object[]{i, de.getLengthType()});
+            throw new IllegalStateException("Invalid Mapper, Data Element [" + i + "] length type ["+de.getLengthType()+"] not fixed nor variable");
+        }
+
+        return m;
+    }
+
+    public String messageToString(Message message) {
+        message.calculateBitmap();
+
+        LOGGER.debug("[MESSAGE2STRING] - [MTI] : [{}]", message.getMti());
+        LOGGER.debug("[MESSAGE2STRING] - [Primary Bitmap] : [{}]", message.getPrimaryBitmapStream());
+        LOGGER.debug("[MESSAGE2STRING] - [Secondary Bitmap] : [{}]", message.getSecondaryBitmapStream());
+        LOGGER.debug("[MESSAGE2STRING] - [Data Element Content] : [{}]", message.getDataElementContent().size());
+
+        StringBuilder builder = new StringBuilder();
+        builder.append(message.getMti());
+        builder.append(message.getPrimaryBitmapStream());
+        builder.append(message.getSecondaryBitmapStream());
+
+        for(int i=2; i <= NUMBER_OF_DATA_ELEMENT; i++){
+            if(!message.isDataElementPresent(i)) {
+                continue;
+            }
+            LOGGER.info("[PROCESSING] - [DATA ELEMENT {}]", i);
+            DataElement de = mapper.getDataElement().get(i);
+            if(de == null){
+                LOGGER.error("[PROCESSING] - [DATA ELEMENT {}] : Not configured", i);
+                throw new IllegalStateException("Invalid Mapper, Data Element [" + i + "] not configured");
+            }
+
+            if(DataElementLength.FIXED.equals(de.getLengthType())){
+                if(de.getLength() == null || de.getLength() < 1){
+                    LOGGER.error("[PROCESSING] - [DATA ELEMENT {}] : Length not configured for fixed length element", i);
+                    throw new IllegalStateException("Invalid Mapper, Data Element [" + i + "] length not configured for fixed length element");
+                }
+
+                builder.append(message.getDataElementContent().get(i));
+                continue;
+            }
+
+            if(DataElementLength.VARIABLE.equals(de.getLengthType())){
+                if(de.getLengthPrefix() == null || de.getLengthPrefix() < 1){
+                    LOGGER.error("[PROCESSING] - [DATA ELEMENT {}] : Length prefix not configured for variable length element", i);
+                    throw new IllegalStateException("Invalid Mapper, Data Element [" + i + "] length prefix not configured for variable length element");
+                }
+
+                String data = message.getDataElementContent().get(i);
+                if(data == null){
+                    data = "";
+                }
+                Integer dataLength = data.length();
+
+                builder.append(StringUtils.leftPad(dataLength.toString(), de.getLengthPrefix(), "0"));
+                builder.append(data);
+                continue;
             }
 
             LOGGER.error("[PROCESSING] - [DATA ELEMENT {}] : Length type [{}] not fixed nor variable", new Object[]{i, de.getLengthType()});
             throw new IllegalStateException("Invalid Mapper, Data Element [" + i + "] length type ["+de.getLengthType()+"] not fixed nor variable");
         }
-
-        return m;
+        return builder.toString();
     }
 }

@@ -1,14 +1,37 @@
 package com.artivisi.iso8583;
 
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Message {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Message.class);
     private String mti;
     private BigInteger primaryBitmap;
     private BigInteger secondaryBitmap;
     private Map<Integer, String> dataElementContent = new HashMap<Integer, String>();
+
+    public void calculateBitmap(){
+        LOGGER.debug("Number of active Data Element [{}]", dataElementContent.size());
+        BigInteger bitmap = BigInteger.ZERO.setBit(128);
+        for(Integer de : dataElementContent.keySet()){
+            LOGGER.debug("Set active flag for Data Element [{}]", de);
+            if(de > 64){
+                bitmap = bitmap.setBit(128 - 1);
+            }
+            bitmap = bitmap.setBit(128 - de);
+        }
+        LOGGER.debug("Final bitmap bin : [{}]", bitmap.toString(2).substring(1));
+        LOGGER.debug("Final bitmap hex : [{}]", bitmap.toString(16).substring(1));
+        setPrimaryBitmapStream(StringUtils.rightPad(bitmap.toString(16).substring(1,16), 16, "0"));
+        if(bitmap.testBit(128 - 1)) {
+            setSecondaryBitmapStream(StringUtils.rightPad(bitmap.toString(16).substring(17), 16, "0"));
+        }
+    }
 
     public Boolean isDataElementPresent(int bit){
         if(bit < 1) {
@@ -30,14 +53,14 @@ public class Message {
         if(primaryBitmap == null){
             return null;
         }
-        return primaryBitmap.toString(16).toUpperCase();
+        return StringUtils.leftPad(primaryBitmap.toString(16).toUpperCase(), 16, "0");
     }
 
     public String getSecondaryBitmapStream(){
-        if(secondaryBitmap == null){
-            return null;
+        if(secondaryBitmap == null || BigInteger.ZERO.equals(secondaryBitmap)){
+            return "";
         }
-        return secondaryBitmap.toString(16).toUpperCase();
+        return StringUtils.leftPad(secondaryBitmap.toString(16).toUpperCase(), 16, "0");
     }
 
     public void setPrimaryBitmapStream(String bitmap){
