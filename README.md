@@ -37,10 +37,13 @@ tetapi ada beberapa keterbatasan yang kami temui, diantaranya:
 
 * Interfacing untuk TCP/IP.
   Silahkan gunakan library lain yang lebih baik
-  seperti [Apache Mina](http://mina.apache.org/), [JBoss Netty](https://netty.io/),
-  atau [Spring Integration](http://static.springsource.org/spring-integration/reference/htmlsingle/#ip)
+  seperti :
+    * [Apache Mina](http://mina.apache.org/)
+    * [JBoss Netty](https://netty.io/)
+    * [Spring Integration](http://static.springsource.org/spring-integration/reference/htmlsingle/#ip)
+
 * Karakter selain ASCII
 
 ## Kontak dan Kontribusi ##
 
-Email ke [endy.muhardin@gmail.com]
+Email ke endy.muhardin@gmail.com
