@@ -1,0 +1,88 @@
+<!--
+
+    Copyright (C) 2012 ArtiVisi Intermedia <info@artivisi.com>
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+    <changeSet id="1" author="endy">
+        <createTable tableName="iso8583_mapper">
+            <column name="id" type="varchar(255)">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="description" type="varchar(255)" />
+        </createTable>
+        <createTable tableName="iso8583_dataelement">
+            <column name="id" type="varchar(255)">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="id_mapper" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="dataelement_number" type="integer">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="dataelement_type" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="dataelement_length_type" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="dataelement_length" type="integer" />
+            <column name="dataelement_length_prefix" type="integer" />
+        </createTable>
+        <modifySql dbms="mysql">
+            <append value=" engine innodb" />
+        </modifySql>
+    </changeSet>
+    <changeSet id="2" author="endy">
+        <addForeignKeyConstraint
+            constraintName="fk_dataelement_mapper"
+            baseColumnNames="id_mapper"
+            baseTableName="iso8583_dataelement"
+            referencedTableName="iso8583_mapper"
+            referencedColumnNames="id"
+        />
+        <addUniqueConstraint
+            constraintName="unique_mapper_name"
+            columnNames="name"
+            tableName="iso8583_mapper"
+        />
+        <addUniqueConstraint
+            constraintName="unique_mapper_number"
+            columnNames="id_mapper,dataelement_number"
+            tableName="iso8583_dataelement"
+        />
+    </changeSet>
+    <changeSet id="3" author="endy">
+        <loadData tableName="iso8583_mapper" file="com/artivisi/iso8583/persistence/db/data/mapper.csv">
+            <column header="name" type="STRING"/>
+            <column header="description" type="STRING"/>
+        </loadData>
+        <loadData tableName="iso8583_dataelement" file="com/artivisi/iso8583/persistence/db/data/dataelement.csv">
+            <column header="mapper_name" type="STRING"/>
+            <column header="dataelement_number" type="NUMERIC"/>
+            <column header="dataelement_type" type="STRING"/>
+            <column header="dataelement_length_type" type="STRING"/>
+            <column header="dataelement_length" type="NUMERIC"/>
+            <column header="dataelement_length_prefix" type="NUMERIC"/>
+        </loadData>
+    </changeSet>
+</databaseChangeLog>

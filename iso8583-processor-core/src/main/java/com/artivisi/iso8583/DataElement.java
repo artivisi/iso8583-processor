@@ -16,13 +16,28 @@
 package com.artivisi.iso8583;
 
 public class DataElement {
+    private String id;
+    private Mapper mapper;
     private Integer number;
     private DataElementType type;
     private DataElementLength lengthType;
     private Integer length = 0;
     private Integer lengthPrefix = 0;
 
-    public DataElement() {
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public Mapper getMapper() {
+        return mapper;
+    }
+
+    public void setMapper(Mapper mapper) {
+        this.mapper = mapper;
     }
 
     public Integer getNumber() {

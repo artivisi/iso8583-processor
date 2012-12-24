@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+
+    Copyright (C) 2012 ArtiVisi Intermedia <info@artivisi.com>
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<entity-mappings xmlns="http://java.sun.com/xml/ns/persistence/orm"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm
+http://java.sun.com/xml/ns/persistence/orm_2_0.xsd"
+                 version="2.0">
+    <description>ISO8583 Mapping Configuration</description>
+    <package>com.artivisi.iso8583</package>
+
+    <entity class="com.artivisi.iso8583.DataElement" metadata-complete="true">
+        <table name="iso8583_dataelement"/>
+        <attributes>
+            <id name="id"/>
+            <basic name="number">
+                <column name="dataelement_number" nullable="false"/>
+            </basic>
+            <basic name="type">
+                <column name="dataelement_type" nullable="false"/>
+                <enumerated>STRING</enumerated>
+            </basic>
+            <basic name="lengthType">
+                <column name="dataelement_length_type" nullable="false"/>
+                <enumerated>STRING</enumerated>
+            </basic>
+            <basic name="length">
+                <column name="dataelement_length"/>
+            </basic>
+            <basic name="lengthPrefix">
+                <column name="dataelement_length_prefix"/>
+            </basic>
+            <many-to-one name="mapper">
+                <join-column name="id_mapper" nullable="false"/>
+            </many-to-one>
+        </attributes>
+    </entity>
+    <entity class="com.artivisi.iso8583.Mapper" metadata-complete="true">
+        <table name="iso8583_mapper"/>
+        <attributes>
+            <id name="id"/>
+            <basic name="name">
+                <column nullable="false" unique="true"/>
+            </basic>
+            <basic name="description" />
+            <one-to-many name="dataElement" mapped-by="mapper" orphan-removal="true">
+                <map-key name="number"/>
+                <cascade><cascade-all/></cascade>
+            </one-to-many>
+        </attributes>
+    </entity>
+</entity-mappings>

@@ -13,6 +13,8 @@
     
     <modules>
 		<module>iso8583-processor-core</module>
+		<module>iso8583-processor-persistence</module>
+		<module>iso8583-processor-config</module>
 	</modules>
 
     <properties>
@@ -22,6 +24,12 @@
         <ch.qos.logback.version>1.0.9</ch.qos.logback.version>
         <joda-time.version>2.1</joda-time.version>
         <commons-lang.version>2.6</commons-lang.version>
+        <maven-failsafe-plugin.version>2.12.4</maven-failsafe-plugin.version>
+
+        <db.driver>com.mysql.jdbc.Driver</db.driver>
+        <db.url><![CDATA[jdbc:mysql://localhost/iso8583_development]]></db.url>
+        <db.username>root</db.username>
+        <db.password>admin</db.password>
     </properties>
 
     <dependencies>
