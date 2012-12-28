@@ -140,13 +140,14 @@ public class Processor {
             if(!message.isDataElementPresent(i)) {
                 continue;
             }
-            LOGGER.info("[PROCESSING] - [DATA ELEMENT {}]", i);
+            LOGGER.debug("[PROCESSING] - [DATA ELEMENT {}]", i);
             DataElement de = mapper.getDataElement().get(i);
             if(de == null){
                 LOGGER.error("[PROCESSING] - [DATA ELEMENT {}] : Not configured", i);
                 throw new IllegalStateException("Invalid Mapper, Data Element [" + i + "] not configured");
             }
 
+            LOGGER.debug("[PROCESSING] - [DATA ELEMENT {}] : Length : {}", de.getLengthType().name());
             if(DataElementLength.FIXED.equals(de.getLengthType())){
                 if(de.getLength() == null || de.getLength() < 1){
                     LOGGER.error("[PROCESSING] - [DATA ELEMENT {}] : Length not configured for fixed length element", i);
