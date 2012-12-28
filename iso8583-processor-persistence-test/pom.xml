@@ -1,11 +1,10 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
 		<groupId>com.artivisi.iso8583</groupId>
         <artifactId>iso8583-processor</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.0.0</version>
 	</parent>
 
 	<artifactId>iso8583-processor-persistence-test</artifactId>
@@ -25,7 +24,7 @@
         <dependency>
             <groupId>com.artivisi.iso8583</groupId>
             <artifactId>iso8583-processor-persistence</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>1.0.0</version>
         </dependency>
         
         <dependency>
@@ -69,10 +68,10 @@
                         <phase>process-resources</phase>
                         <configuration>
                             <target>
-                                <replace file="${project.build.outputDirectory}/jdbc.properties" token="@db.driver@" value="${db.driver}"/>
-                                <replace file="${project.build.outputDirectory}/jdbc.properties" token="@db.url@" value="${db.url}"/>
-                                <replace file="${project.build.outputDirectory}/jdbc.properties" token="@db.username@" value="${db.username}"/>
-                                <replace file="${project.build.outputDirectory}/jdbc.properties" token="@db.password@" value="${db.password}"/>
+                                <replace file="${project.build.outputDirectory}/jdbc.properties" token="@db.driver@" value="${db.driver}" />
+                                <replace file="${project.build.outputDirectory}/jdbc.properties" token="@db.url@" value="${db.url}" />
+                                <replace file="${project.build.outputDirectory}/jdbc.properties" token="@db.username@" value="${db.username}" />
+                                <replace file="${project.build.outputDirectory}/jdbc.properties" token="@db.password@" value="${db.password}" />
                             </target>
                         </configuration>
                         <goals>
