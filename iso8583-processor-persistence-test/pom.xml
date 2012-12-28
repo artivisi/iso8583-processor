@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.artivisi.iso8583</groupId>
         <artifactId>iso8583-processor</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.1-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>iso8583-processor-persistence-test</artifactId>
@@ -24,7 +24,7 @@
         <dependency>
             <groupId>com.artivisi.iso8583</groupId>
             <artifactId>iso8583-processor-persistence</artifactId>
-            <version>1.0.0</version>
+            <version>1.0.1-SNAPSHOT</version>
         </dependency>
         
         <dependency>
