@@ -12,6 +12,7 @@
     <inceptionYear>2012</inceptionYear>
 
     <scm>
+        <connection>https://github.com/artivisi/iso8583-processor.git</connection>
         <developerConnection>scm:git:ssh://github.com/artivisi/iso8583-processor.git</developerConnection>
     </scm>
 
