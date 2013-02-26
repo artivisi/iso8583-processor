@@ -92,6 +92,7 @@ public class Processor {
 
                 String data = stream.substring(currentPosition, currentPosition + de.getLength());
                 m.getDataElementContent().put(i, data);
+                LOGGER.debug("[STRING2MESSAGE] - [DATA ELEMENT {}] : [{}]", i, data);
                 currentPosition += de.getLength();
                 continue;
             }
@@ -108,6 +109,7 @@ public class Processor {
                     Integer length = Integer.parseInt(strLength);
                     String data = stream.substring(currentPosition, currentPosition + length);
                     m.getDataElementContent().put(i, data);
+                    LOGGER.debug("[STRING2MESSAGE] - [DATA ELEMENT {}] : [{}]", i, data);
                     currentPosition += length;
                     continue;
                 } catch (NumberFormatException err) {
@@ -147,7 +149,7 @@ public class Processor {
                 throw new IllegalStateException("Invalid Mapper, Data Element [" + i + "] not configured");
             }
 
-            LOGGER.debug("[PROCESSING] - [DATA ELEMENT {}] : Length : {}", de.getLengthType().name());
+            LOGGER.debug("[PROCESSING] - [DATA ELEMENT {}] : Length : {}", i, de.getLengthType().name());
             if(DataElementLength.FIXED.equals(de.getLengthType())){
                 if(de.getLength() == null || de.getLength() < 1){
                     LOGGER.error("[PROCESSING] - [DATA ELEMENT {}] : Length not configured for fixed length element", i);
