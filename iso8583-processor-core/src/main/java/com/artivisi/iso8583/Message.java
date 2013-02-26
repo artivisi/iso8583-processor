@@ -30,6 +30,14 @@ public class Message {
     private BigInteger secondaryBitmap;
     private Map<Integer, String> dataElementContent = new HashMap<Integer, String>();
 
+    public Message createCopy(){
+        Message hasil = new Message();
+        hasil.setMti(this.mti);
+        hasil.getDataElementContent().putAll(this.getDataElementContent());
+        hasil.calculateBitmap();
+        return hasil;
+    }
+
     public void calculateBitmap(){
         LOGGER.debug("Number of active Data Element [{}]", dataElementContent.size());
         BigInteger bitmap = BigInteger.ZERO.setBit(128);
