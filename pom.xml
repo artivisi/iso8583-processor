@@ -19,7 +19,6 @@
     <modules>
 		<module>iso8583-processor-core</module>
 		<module>iso8583-processor-persistence</module>
-		<module>iso8583-processor-persistence-test</module>
 	</modules>
 
     <properties>

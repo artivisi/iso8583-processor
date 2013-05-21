@@ -65,7 +65,7 @@ public class MapperServiceTestIT {
         assertFalse(result.isEmpty());
     }
 
-    //@Test
+    @Test
     public void testCrud() throws Exception {
         Mapper m = new Mapper();
         m.setName("tester");
