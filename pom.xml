@@ -3,7 +3,7 @@
 
     <groupId>com.artivisi.iso8583</groupId>
     <artifactId>iso8583-processor</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>iso8583-processor</name>
@@ -13,7 +13,7 @@
     <scm>
         <connection>scm:git:https://github.com/artivisi/iso8583-processor.git</connection>
         <developerConnection>scm:git:git@github.com:artivisi/iso8583-processor.git</developerConnection>
-      <tag>iso8583-processor-1.0.1</tag>
+      <tag>HEAD</tag>
   </scm>
 
     <modules>
