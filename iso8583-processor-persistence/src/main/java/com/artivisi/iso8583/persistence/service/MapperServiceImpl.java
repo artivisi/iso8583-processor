@@ -20,16 +20,16 @@ import com.artivisi.iso8583.Mapper;
 import com.artivisi.iso8583.persistence.MapperService;
 import com.artivisi.iso8583.persistence.dao.MapperDao;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
 import java.util.UUID;
 
-@Service @Transactional
-public class MapperServiceImpl implements MapperService{
+@Service("mapperService") @Transactional
+public class MapperServiceImpl implements MapperService {
+
     @Autowired private MapperDao mapperDao;
 
     @Override
@@ -77,8 +77,8 @@ public class MapperServiceImpl implements MapperService{
     }
 
     @Override
-    public Page<Mapper> findAllMapper(Pageable pageable) {
-        return mapperDao.findAll(pageable);
+    public List<Mapper> findAllMapper(Integer start, Integer rows) {
+        return mapperDao.findAll(start, rows);
     }
 
     @Override

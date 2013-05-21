@@ -12,12 +12,9 @@
 	<name>Persistence for Mapping Configuration</name>
 
     <properties>
-        <org.springframework.version>3.2.0.RELEASE</org.springframework.version>
-        <org.springframework.data.version>1.1.0.RELEASE</org.springframework.data.version>
-        <org.hibernate.version>4.1.6.Final</org.hibernate.version>
-        <org.hibernate.validator.version>4.2.0.Final</org.hibernate.validator.version>
+        <org.springframework.version>3.2.3.RELEASE</org.springframework.version>
         <liquibase-maven-plugin.version>2.0.5</liquibase-maven-plugin.version>
-        <mysql.version>5.1.22</mysql.version>
+        <mysql.version>5.1.2</mysql.version>
     </properties>
 
 
@@ -29,33 +26,15 @@
         </dependency>
 
         <dependency>
-            <groupId>org.springframework.data</groupId>
-            <artifactId>spring-data-jpa</artifactId>
-            <version>${org.springframework.data.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-orm</artifactId>
+            <artifactId>spring-context</artifactId>
             <version>${org.springframework.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-test</artifactId>
+            <artifactId>spring-jdbc</artifactId>
             <version>${org.springframework.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-entitymanager</artifactId>
-            <version>${org.hibernate.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-validator</artifactId>
-            <version>${org.hibernate.validator.version}</version>
         </dependency>
 	</dependencies>
 

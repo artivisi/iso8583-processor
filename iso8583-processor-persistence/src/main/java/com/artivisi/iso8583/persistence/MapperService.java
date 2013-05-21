@@ -16,14 +16,13 @@
 package com.artivisi.iso8583.persistence;
 
 import com.artivisi.iso8583.Mapper;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import java.util.List;
 
 public interface MapperService {
     void save(Mapper mapper);
     Mapper findMapperById(String id);
     Mapper findMapperByName(String name);
-    Page<Mapper> findAllMapper(Pageable pageable);
+    List<Mapper> findAllMapper(Integer start, Integer rows);
     Long countAllMapper();
     void delete(Mapper m);
 }
