@@ -1,0 +1,134 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.artivisi.iso8583</groupId>
+    <artifactId>iso8583-processor</artifactId>
+    <version>1.0.2-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>iso8583-processor</name>
+    <url>https://github.com/artivisi/iso8583-processor</url>
+    <inceptionYear>2012</inceptionYear>
+
+    <scm>
+        <connection>scm:git:https://github.com/artivisi/iso8583-processor.git</connection>
+        <developerConnection>scm:git:git@github.com:artivisi/iso8583-processor.git</developerConnection>
+      <tag>HEAD</tag>
+  </scm>
+
+    <modules>
+		<module>iso8583-processor-core</module>
+		<module>iso8583-processor-persistence</module>
+	</modules>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <junit.version>4.11</junit.version>
+        <org.slf4j.version>1.7.5</org.slf4j.version>
+        <ch.qos.logback.version>1.0.13</ch.qos.logback.version>
+        <joda-time.version>2.2</joda-time.version>
+        <commons-lang.version>2.6</commons-lang.version>
+        <maven-failsafe-plugin.version>2.12.4</maven-failsafe-plugin.version>
+
+        <db.driver>com.mysql.jdbc.Driver</db.driver>
+        <db.url><![CDATA[jdbc:mysql://localhost/iso8583_development]]></db.url>
+        <db.username>root</db.username>
+        <db.password>admin</db.password>
+    </properties>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${org.slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <version>${org.slf4j.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>log4j-over-slf4j</artifactId>
+            <version>${org.slf4j.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${ch.qos.logback.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.0.2</version>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <inherited>false</inherited>
+                <groupId>com.google.code.maven-license-plugin</groupId>
+                <artifactId>maven-license-plugin</artifactId>
+                <version>1.4.0</version>
+                <configuration>
+                    <header>NOTICE</header>
+                    <failIfMissing>true</failIfMissing>
+                    <aggregate>true</aggregate>
+                    <properties>
+                        <owner>ArtiVisi Intermedia</owner>
+                        <year>${project.inceptionYear}</year>
+                        <email>info@artivisi.com</email>
+                    </properties>
+                    <excludes>
+                        <exclude>LICENSE</exclude>
+                        <exclude>NOTICE</exclude>
+                        <exclude>**/Servers/**</exclude>
+                        <exclude>**/src/test/resources/**</exclude>
+                        <exclude>**/src/test/data/**</exclude>
+                        <exclude>.git/**</exclude>
+                        <exclude>**/.metadata/**</exclude>
+                        <exclude>**/.idea/**</exclude>
+                        <exclude>**/logs/**</exclude>
+                        <exclude>**/js/**</exclude>
+                        <exclude>**/css/**</exclude>
+                        <exclude>**/jacoco-result/**</exclude>
+                        <exclude>**/src/main/webapp/resources/**</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>check-headers</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.4</version>
+            </plugin>
+        </plugins>
+    </build>
+</project>

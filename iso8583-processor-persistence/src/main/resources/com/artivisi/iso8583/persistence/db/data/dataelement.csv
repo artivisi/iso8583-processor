@@ -1,0 +1,8 @@
+id,id_mapper,dataelement_number,dataelement_type,dataelement_length_type,dataelement_length,dataelement_length_prefix
+demo-3,demo,3,NUMERIC,FIXED,6,NULL
+demo-7,demo,7,NUMERIC,FIXED,14,NULL
+demo-11,demo,11,NUMERIC,FIXED,6,NULL
+demo-39,demo,39,NUMERIC,FIXED,2,NULL
+demo-41,demo,41,ALPHANUMERIC,FIXED,16,NULL
+demo-60,demo,60,ALPHANUMERIC,VARIABLE,NULL,3
+demo-70,demo,70,ALPHANUMERIC,FIXED,3,NULL
