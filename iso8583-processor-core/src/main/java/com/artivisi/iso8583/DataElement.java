@@ -15,14 +15,19 @@
  */
 package com.artivisi.iso8583;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DataElement {
     private String id;
     private Mapper mapper;
     private Integer number;
+    private String elementName;
     private DataElementType type;
     private DataElementLength lengthType;
     private Integer length = 0;
     private Integer lengthPrefix = 0;
+    private List<SubElement> subElements = new ArrayList<>();
 
     public String getId() {
         return id;
@@ -84,4 +89,23 @@ public class DataElement {
         this.lengthType = lengthType;
         return this;
     }
+
+    public List<SubElement> getSubElements() {
+        return subElements;
+    }
+
+    public DataElement setSubElements(List<SubElement> subElements) {
+        this.subElements = subElements;
+        return this;
+    }
+
+    public String getElementName() {
+        return elementName;
+    }
+
+    public DataElement setElementName(String elementName) {
+        this.elementName = elementName;
+        return this;
+    }
+    
 }
