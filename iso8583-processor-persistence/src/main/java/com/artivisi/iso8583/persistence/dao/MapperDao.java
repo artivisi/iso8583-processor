@@ -121,7 +121,7 @@ public class MapperDao {
     }
 
     public Long count() {
-        return jdbcTemplate.queryForLong(SQL_COUNT_MAPPER);
+        return jdbcTemplate.queryForObject(SQL_COUNT_MAPPER, Long.class);
     }
 
     public List<Mapper> findAll(Integer start, Integer rows) {

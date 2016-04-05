@@ -39,17 +39,16 @@ public class Message {
     }
 
     public void calculateBitmap(){
-//        LOGGER.debug("Number of active Data Element [{}]", dataElementContent.size());
+        LOGGER.debug("Number of active Data Element [{}]", dataElementContent.size());
         BigInteger bitmap = BigInteger.ZERO.setBit(128);
         for(Integer de : dataElementContent.keySet()){
-//            LOGGER.debug("Set active flag for Data Element [{}]", de);
             if(de > 64){
                 bitmap = bitmap.setBit(128 - 1);
             }
             bitmap = bitmap.setBit(128 - de);
         }
-//        LOGGER.debug("Final bitmap bin : [{}]", bitmap.toString(2).substring(1));
-//        LOGGER.debug("Final bitmap hex : [{}]", bitmap.toString(16).substring(1));
+        LOGGER.debug("Final bitmap bin : [{}]", bitmap.toString(2).substring(1));
+        LOGGER.debug("Final bitmap hex : [{}]", bitmap.toString(16).substring(1));
         setPrimaryBitmapStream(StringUtils.rightPad(bitmap.toString(16).substring(1,17), 16, "0"));
         if(bitmap.testBit(128 - 1)) {
             setSecondaryBitmapStream(StringUtils.rightPad(bitmap.toString(16).substring(17), 16, "0"));
