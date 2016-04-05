@@ -22,11 +22,12 @@
     </modules>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <junit.version>4.12</junit.version>
-        <org.slf4j.version>1.7.16</org.slf4j.version>
         <ch.qos.logback.version>1.1.5</ch.qos.logback.version>
         <commons-lang.version>2.6</commons-lang.version>
+        <flywaydb.version>4.0</flywaydb.version>
+        <junit.version>4.12</junit.version>
+        <org.slf4j.version>1.7.16</org.slf4j.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencies>

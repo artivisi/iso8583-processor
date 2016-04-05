@@ -19,6 +19,7 @@ import com.artivisi.iso8583.DataElement;
 import com.artivisi.iso8583.DataElementLength;
 import com.artivisi.iso8583.DataElementType;
 import com.artivisi.iso8583.Mapper;
+import com.artivisi.iso8583.SubElement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -49,10 +50,15 @@ public class MapperDao {
     private static final String SQL_FIND_DATAELEMENT_BY_ID_MAPPER = "select * from iso8583_dataelement where id_mapper=?";
 
     private static final String SQL_INSERT_DATA_ELEMENT = "insert into iso8583_dataelement " +
-            "(id, id_mapper,dataelement_number,dataelement_type,dataelement_length_type,dataelement_length,dataelement_length_prefix) " +
-            "values (:id, :id_mapper, :dataelement_number, :dataelement_type, :dataelement_length_type, :dataelement_length, :dataelement_length_prefix)";
+            "(id, id_mapper, dataelement_number, dataelement_name, dataelement_type, dataelement_length_type, dataelement_length, dataelement_length_prefix) " +
+            "values (:id, :id_mapper, :dataelement_number, :dataelement_name, :dataelement_type, :dataelement_length_type, :dataelement_length, :dataelement_length_prefix)";
+    
+    private static final String SQL_INSERT_SUB_ELEMENT = "insert into iso8583_subelement "
+            + "(id, id_data_element, subelement_type, subelement_number, subelement_name, subelement_length, subelement_padding, subelement_separator, subelement_repeated) "
+            + "values (:id, :id_data_element, :subelement_type, :subelement_number, :subelement_name, :subelement_length, :subelement_padding, :subelement_separator, :subelement_repeated)";
 
     private static final String SQL_DELETE_DATA_ELEMENT_BY_MAPPER = "delete from iso8583_dataelement where id_mapper = ?";
+    private static final String SQL_DELETE_SUB_ELEMENT_BY_ID_DATA_ELEMENT = "delete from iso8583_subelement where id_data_element = ?";
 
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private JdbcTemplate jdbcTemplate;
@@ -71,20 +77,40 @@ public class MapperDao {
         for(Integer dataElement : mapper.getDataElement().keySet()) {
             DataElement de = mapper.getDataElement().get(dataElement);
 
-            Map<String, Object> params = new HashMap<String, Object>();
+            Map<String, Object> params = new HashMap<>();
             params.put("id", UUID.randomUUID().toString());
             params.put("id_mapper", mapper.getId());
             params.put("dataelement_number", dataElement);
+            params.put("dataelement_name", de.getElementName());
             params.put("dataelement_type", de.getType().name());
             params.put("dataelement_length_type", de.getLengthType().name());
             params.put("dataelement_length", de.getLength());
             params.put("dataelement_length_prefix", de.getLengthPrefix());
 
             namedParameterJdbcTemplate.update(SQL_INSERT_DATA_ELEMENT, params);
+            
+            for (SubElement sub : de.getSubElements()) {
+                Map<String, Object> subParams = new HashMap<>();
+                subParams.put("id", UUID.randomUUID().toString());
+                subParams.put("id_data_element", params.get("id"));
+                subParams.put("subelement_type", sub.getType().name());
+                subParams.put("subelement_number", sub.getNumber());
+                subParams.put("subelement_name", sub.getElementName());
+                subParams.put("subelement_length", sub.getLength());
+                subParams.put("subelement_padding", sub.getPadding());
+                subParams.put("subelement_separator", sub.getSeparatorChar());
+                subParams.put("subelement_repeated", sub.getRepeated());
+                
+                namedParameterJdbcTemplate.update(SQL_INSERT_SUB_ELEMENT, subParams);
+            }
         }
     }
 
     public void delete(Mapper m) {
+        for(DataElement de : m.getDataElement().values()){
+            jdbcTemplate.update(SQL_DELETE_SUB_ELEMENT_BY_ID_DATA_ELEMENT, de.getId());
+        }
+        
         jdbcTemplate.update(SQL_DELETE_DATA_ELEMENT_BY_MAPPER,m.getId());
         jdbcTemplate.update(SQL_DELETE_MAPPER_BY_ID,m.getId());
     }
@@ -158,6 +184,7 @@ public class MapperDao {
             de.setLengthPrefix((Integer)resultSet.getObject("dataelement_length_prefix"));
             de.setLengthType(DataElementLength.valueOf(resultSet.getString("dataelement_length_type")));
             de.setNumber((Integer)resultSet.getObject("dataelement_number"));
+            de.setElementName((String) resultSet.getString("dataelement_name"));
             de.setType(DataElementType.valueOf(resultSet.getString("dataelement_type")));
             return de;
         }
