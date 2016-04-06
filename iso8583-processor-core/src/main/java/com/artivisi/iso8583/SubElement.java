@@ -27,7 +27,8 @@ public class SubElement {
     private Integer number;
     private String elementName;
     private Integer length = 0;
-    private String padding = " ";
+    private String padding;
+    private PaddingPosition paddingPosition;
     private String separatorChar = "";
     private Boolean repeated;
 
@@ -101,6 +102,14 @@ public class SubElement {
 
     public void setElementName(String elementName) {
         this.elementName = elementName;
+    }
+
+    public PaddingPosition getPaddingPosition() {
+        return paddingPosition;
+    }
+
+    public void setPaddingPosition(PaddingPosition paddingPosition) {
+        this.paddingPosition = paddingPosition;
     }
     
 }

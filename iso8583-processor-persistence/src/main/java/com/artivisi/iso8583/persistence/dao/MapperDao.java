@@ -19,6 +19,7 @@ import com.artivisi.iso8583.DataElement;
 import com.artivisi.iso8583.DataElementLength;
 import com.artivisi.iso8583.DataElementType;
 import com.artivisi.iso8583.Mapper;
+import com.artivisi.iso8583.PaddingPosition;
 import com.artivisi.iso8583.SubElement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -48,16 +49,15 @@ public class MapperDao {
     private static final String SQL_DELETE_MAPPER_BY_ID = "delete from iso8583_mapper where id=?";
 
     private static final String SQL_FIND_DATAELEMENT_BY_ID_MAPPER = "select * from iso8583_dataelement where id_mapper=?";
-
     private static final String SQL_INSERT_DATA_ELEMENT = "insert into iso8583_dataelement " +
             "(id, id_mapper, dataelement_number, dataelement_name, dataelement_type, dataelement_length_type, dataelement_length, dataelement_length_prefix) " +
             "values (:id, :id_mapper, :dataelement_number, :dataelement_name, :dataelement_type, :dataelement_length_type, :dataelement_length, :dataelement_length_prefix)";
-    
-    private static final String SQL_INSERT_SUB_ELEMENT = "insert into iso8583_subelement "
-            + "(id, id_data_element, subelement_type, subelement_number, subelement_name, subelement_length, subelement_padding, subelement_separator, subelement_repeated) "
-            + "values (:id, :id_data_element, :subelement_type, :subelement_number, :subelement_name, :subelement_length, :subelement_padding, :subelement_separator, :subelement_repeated)";
-
     private static final String SQL_DELETE_DATA_ELEMENT_BY_MAPPER = "delete from iso8583_dataelement where id_mapper = ?";
+    
+    private static final String SQL_FIND_SUBELEMENT_BY_ID_ELEMENT = "select * from iso8583_subelement where id_data_element=?";
+    private static final String SQL_INSERT_SUB_ELEMENT = "insert into iso8583_subelement "
+            + "(id, id_data_element, subelement_type, subelement_number, subelement_name, subelement_length, subelement_padding, subelement_padding_pos, subelement_separator, subelement_repeated) "
+            + "values (:id, :id_data_element, :subelement_type, :subelement_number, :subelement_name, :subelement_length, :subelement_padding, :subelement_padding_pos, :subelement_separator, :subelement_repeated)";
     private static final String SQL_DELETE_SUB_ELEMENT_BY_ID_DATA_ELEMENT = "delete from iso8583_subelement where id_data_element = ?";
 
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
@@ -98,6 +98,7 @@ public class MapperDao {
                 subParams.put("subelement_name", sub.getElementName());
                 subParams.put("subelement_length", sub.getLength());
                 subParams.put("subelement_padding", sub.getPadding());
+                subParams.put("subelement_padding_pos", sub.getPaddingPosition().name());
                 subParams.put("subelement_separator", sub.getSeparatorChar());
                 subParams.put("subelement_repeated", sub.getRepeated());
                 
@@ -141,6 +142,12 @@ public class MapperDao {
                 .query(SQL_FIND_DATAELEMENT_BY_ID_MAPPER, new DataElementFromResultSet(), m.getId());
 
         for (DataElement d : deList) {
+            List<SubElement> subList = jdbcTemplate.query(SQL_FIND_SUBELEMENT_BY_ID_ELEMENT, new SubElementFromResultSet(), d.getId());
+            for (SubElement se : subList) {
+                se.setDataElement(d);
+                d.getSubElements().add(se);
+            }
+            
             d.setMapper(m);
             m.getDataElement().put(d.getNumber(), d);
         }
@@ -187,6 +194,24 @@ public class MapperDao {
             de.setElementName((String) resultSet.getString("dataelement_name"));
             de.setType(DataElementType.valueOf(resultSet.getString("dataelement_type")));
             return de;
+        }
+    }
+    
+    private class SubElementFromResultSet implements RowMapper<SubElement>{
+
+        @Override
+        public SubElement mapRow(ResultSet resultSet, int i) throws SQLException {
+            SubElement se = new SubElement();
+            se.setId(resultSet.getString("id"));
+            se.setLength((Integer)resultSet.getObject("subelement_length"));
+            se.setNumber((Integer)resultSet.getObject("subelement_number"));
+            se.setElementName((String) resultSet.getString("subelement_name"));
+            se.setType(DataElementType.valueOf(resultSet.getString("subelement_type")));
+            se.setPadding(resultSet.getString("subelement_padding"));
+            se.setPaddingPosition(PaddingPosition.valueOf(resultSet.getString("subelement_padding_pos")));
+            se.setRepeated(resultSet.getBoolean("subelement_repeated"));
+            se.setSeparatorChar(resultSet.getString("subelement_separator"));
+            return se;
         }
     }
 }
