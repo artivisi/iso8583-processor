@@ -55,9 +55,28 @@ public class MapperDao {
     private static final String SQL_DELETE_DATA_ELEMENT_BY_MAPPER = "delete from iso8583_dataelement where id_mapper = ?";
     
     private static final String SQL_FIND_SUBELEMENT_BY_ID_ELEMENT = "select * from iso8583_subelement where id_data_element=?";
+    private static final String SQL_FIND_SUBELEMENT_BY_ELEMENT_NUMBER_AND_MAPPER = 
+                                "select	sub.id, " +
+                                "	sub.subelement_number, " +
+                                "	sub.subelement_name, " +
+                                "	sub.subelement_type, " +
+                                "	sub.subelement_type_format, " +
+                                "	sub.subelement_length, " +
+                                "	sub.subelement_padding, " +
+                                "	sub.subelement_padding_pos, " +
+                                "	sub.subelement_repeated, " +
+                                "	sub.subelement_repeated_column " +
+                                "FROM	iso8583_subelement sub " +
+                                "LEFT JOIN iso8583_dataelement data " +
+                                "     ON sub.id_data_element=data.id " +
+                                "LEFT JOIN iso8583_mapper mapper " +
+                                "     ON data.id_mapper = mapper.id " +
+                                "WHERE	data.dataelement_number = ? " +
+                                "     AND mapper.name=? " +
+                                "ORDER BY sub.subelement_number";
     private static final String SQL_INSERT_SUB_ELEMENT = "insert into iso8583_subelement "
-            + "(id, id_data_element, subelement_type, subelement_number, subelement_name, subelement_length, subelement_padding, subelement_padding_pos, subelement_separator, subelement_repeated) "
-            + "values (:id, :id_data_element, :subelement_type, :subelement_number, :subelement_name, :subelement_length, :subelement_padding, :subelement_padding_pos, :subelement_separator, :subelement_repeated)";
+            + "(id, id_data_element, subelement_number, subelement_name, subelement_type, subelement_type_format, subelement_length, subelement_padding, subelement_padding_pos, subelement_repeated, subelement_repeated_column) "
+            + "values (:id, :id_data_element, :subelement_number, :subelement_name, :subelement_type, :subelement_type_format, :subelement_length, :subelement_padding, :subelement_padding_pos, :subelement_repeated, :subelement_repeated_column)";
     private static final String SQL_DELETE_SUB_ELEMENT_BY_ID_DATA_ELEMENT = "delete from iso8583_subelement where id_data_element = ?";
 
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
@@ -93,14 +112,15 @@ public class MapperDao {
                 Map<String, Object> subParams = new HashMap<>();
                 subParams.put("id", UUID.randomUUID().toString());
                 subParams.put("id_data_element", params.get("id"));
-                subParams.put("subelement_type", sub.getType().name());
                 subParams.put("subelement_number", sub.getNumber());
                 subParams.put("subelement_name", sub.getElementName());
+                subParams.put("subelement_type", sub.getType().name());
+                subParams.put("subelement_type_format", sub.getTypeFormat());
                 subParams.put("subelement_length", sub.getLength());
                 subParams.put("subelement_padding", sub.getPadding());
                 subParams.put("subelement_padding_pos", sub.getPaddingPosition().name());
-                subParams.put("subelement_separator", sub.getSeparatorChar());
                 subParams.put("subelement_repeated", sub.getRepeated());
+                subParams.put("subelement_repeated_column", sub.getRepeatedColumn());
                 
                 namedParameterJdbcTemplate.update(SQL_INSERT_SUB_ELEMENT, subParams);
             }
@@ -168,6 +188,16 @@ public class MapperDao {
 
         return jdbcTemplate.query(SQL_FIND_ALL_MAPPER, new MapperFromResultSet(), start, rows);
     }
+    
+    public List<SubElement> findSubElementByElementNumber(Integer elementNumber, String mapperName) {
+        if(!StringUtils.hasText(mapperName) || elementNumber==null) {
+            return null;
+        }
+        List<SubElement> subElements = jdbcTemplate.query(
+                SQL_FIND_SUBELEMENT_BY_ELEMENT_NUMBER_AND_MAPPER, new SubElementFromResultSet(), 
+                elementNumber, mapperName);
+        return subElements;
+    }
 
     private class MapperFromResultSet implements RowMapper<Mapper>{
 
@@ -203,14 +233,15 @@ public class MapperDao {
         public SubElement mapRow(ResultSet resultSet, int i) throws SQLException {
             SubElement se = new SubElement();
             se.setId(resultSet.getString("id"));
-            se.setLength((Integer)resultSet.getObject("subelement_length"));
             se.setNumber((Integer)resultSet.getObject("subelement_number"));
             se.setElementName((String) resultSet.getString("subelement_name"));
             se.setType(DataElementType.valueOf(resultSet.getString("subelement_type")));
+            se.setTypeFormat(resultSet.getString("subelement_type_format"));
+            se.setLength((Integer)resultSet.getObject("subelement_length"));
             se.setPadding(resultSet.getString("subelement_padding"));
             se.setPaddingPosition(PaddingPosition.valueOf(resultSet.getString("subelement_padding_pos")));
             se.setRepeated(resultSet.getBoolean("subelement_repeated"));
-            se.setSeparatorChar(resultSet.getString("subelement_separator"));
+            se.setRepeatedColumn(resultSet.getString("subelement_repeated_column"));
             return se;
         }
     }
