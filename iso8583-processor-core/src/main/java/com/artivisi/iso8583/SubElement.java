@@ -23,14 +23,15 @@ public class SubElement {
     
     private String id;
     private DataElement dataElement;
-    private DataElementType type;
     private Integer number;
     private String elementName;
+    private DataElementType type;
+    private String typeFormat;
     private Integer length = 0;
     private String padding;
     private PaddingPosition paddingPosition;
-    private String separatorChar = "";
     private Boolean repeated;
+    private String repeatedColumn;
 
     public String getId() {
         return id;
@@ -80,14 +81,6 @@ public class SubElement {
         this.padding = padding;
     }
 
-    public String getSeparatorChar() {
-        return separatorChar;
-    }
-
-    public void setSeparatorChar(String separatorChar) {
-        this.separatorChar = separatorChar;
-    }
-
     public Boolean getRepeated() {
         return repeated;
     }
@@ -110,6 +103,22 @@ public class SubElement {
 
     public void setPaddingPosition(PaddingPosition paddingPosition) {
         this.paddingPosition = paddingPosition;
+    }
+
+    public String getTypeFormat() {
+        return typeFormat;
+    }
+
+    public void setTypeFormat(String typeFormat) {
+        this.typeFormat = typeFormat;
+    }
+
+    public String getRepeatedColumn() {
+        return repeatedColumn;
+    }
+
+    public void setRepeatedColumn(String repeatedColumn) {
+        this.repeatedColumn = repeatedColumn;
     }
     
 }

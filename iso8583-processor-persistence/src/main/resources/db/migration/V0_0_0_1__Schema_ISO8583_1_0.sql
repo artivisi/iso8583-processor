@@ -61,13 +61,15 @@ CREATE TABLE iso8583_subelement (
   id character varying(36) NOT NULL,
   id_data_element character varying(36) NOT NULL,
   subelement_number integer NOT NULL,
-  subelement_type character varying(12) NOT NULL,
   subelement_name character varying(50) NOT NULL,
+  subelement_type character varying(12) NOT NULL,
+  subelement_type_format character varying(20),
   subelement_length integer NOT NULL,
   subelement_padding character varying(1) DEFAULT NULL,
   subelement_padding_pos character varying(5) DEFAULT NULL,
   subelement_separator character varying(1) DEFAULT NULL,
-  subelement_repeated boolean NOT NULL
+  subelement_repeated boolean NOT NULL,
+  subelement_repeated_column character varying(50)
 );
 ALTER TABLE ONLY iso8583_subelement
     ADD CONSTRAINT iso8583_subelement_pkey PRIMARY KEY (id);
