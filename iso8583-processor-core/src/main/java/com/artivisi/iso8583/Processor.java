@@ -15,10 +15,22 @@
  */
 package com.artivisi.iso8583;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.RoundingMode;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.temporal.ChronoField;
 
 public class Processor {
     private static final Logger LOGGER = LoggerFactory.getLogger(Processor.class);
@@ -174,5 +186,103 @@ public class Processor {
             throw new IllegalStateException("Invalid Mapper, Data Element [" + i + "] length type ["+de.getLengthType()+"] not fixed nor variable");
         }
         return builder.toString();
+    }
+    
+    public static Map<String, Object> convertToMap(List<SubElement> subElements, String stream){
+        if(subElements.isEmpty()) return null;
+            
+        Collections.sort(subElements, new SubElementsComparator());
+        
+        Integer requiredLength = calculateLengthSubElement(subElements);
+        if(stream.length() < requiredLength) {
+            LOGGER.error("[CONVERT2MAP] - [SUBELEMENT] : Invalid stream length. expected:{} actual:{}", requiredLength, stream.length());
+            throw new IllegalStateException("Invalid Stream Length. Required Length is : " + requiredLength + " on DataElement:" + subElements.get(0).getDataElement().getNumber());
+        }
+        
+        int currentPosition = 0;
+        Map<String, Object> result = new HashMap<>();
+        
+        for (SubElement sub : subElements) {
+            try {
+                String strData = stream.substring(currentPosition, currentPosition + sub.getLength());
+                strData = removePadding(strData, sub.getPadding(), sub.getPaddingPosition());
+                
+                if(sub.getType().equals(DataElementType.ALPHANUMERIC)){
+                    result.put(sub.getElementName(), strData);
+                } else if(sub.getType().equals(DataElementType.NUMERIC)){
+                    result.put(sub.getElementName(), Integer.parseInt(strData));
+                } else if(sub.getType().equals(DataElementType.DECIMAL)){
+                    if(sub.getTypeFormat()==null || sub.getTypeFormat().length()<1){
+                        throw new IllegalStateException("Type Format not configured");
+                    }
+                    
+                    int idxDot = sub.getTypeFormat().indexOf(".");
+                    int scale = sub.getTypeFormat().substring(idxDot+1).length();
+                    BigDecimal value = new BigDecimal(strData).divide(BigDecimal.TEN.multiply(new BigDecimal(scale)), scale, RoundingMode.HALF_EVEN);
+                    result.put(sub.getElementName(), value);
+                } else if(sub.getType().equals(DataElementType.DATE)){
+                    if(sub.getTypeFormat()==null || sub.getTypeFormat().length()<1){
+                        throw new IllegalStateException("Type Format not configured");
+                    }
+                    
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern(sub.getTypeFormat()).withZone(ZoneId.systemDefault());
+                    Date value = new Date(formatter.parse(strData).getLong(ChronoField.MILLI_OF_SECOND));
+                    result.put(sub.getElementName(), value);
+                } else {
+                    throw new IllegalStateException("Invalid Data Element Type : " + sub.getType().name());
+                }
+                
+                currentPosition += sub.getLength();
+            } catch (Exception ex) {
+                LOGGER.error("{} : SubElement:[{}]", ex.getMessage(), sub.getNumber());
+                throw new IllegalStateException(ex.getMessage(), ex);
+            }
+        }
+        return result;
+    }
+    
+    private static class SubElementsComparator implements Comparator<SubElement> {
+
+        @Override
+        public int compare(SubElement o1, SubElement o2) {
+            return o1.getNumber().compareTo(o2.getNumber());
+        }
+        
+    }
+    
+    private static Integer calculateLengthSubElement(List<SubElement> subElements) {
+        Integer resultLength = 0;
+        for (SubElement sub : subElements) {
+            resultLength += sub.getLength();
+        }
+        return resultLength;
+    }
+    
+    private static String removePadding(String text, String padding, PaddingPosition position) throws Exception {
+        if (text == null || text.length() < 1) {
+            throw new Exception("Invalid text for remove padding");
+        }
+
+        if (position.equals(PaddingPosition.RIGHT)) {
+            for (int i = text.length() - 1; i > -1; i--) {
+                if (text.charAt(i) == padding.charAt(0)) {
+                    continue;
+                }
+                return text.substring(0, i + 1);
+            }
+            //Jika semua karakter sama seperti padding, maka return huruf pertama saja
+            return text.substring(0, 1);
+        } else if (position.equals(PaddingPosition.LEFT)) {
+            for (int i = 0; i < text.length(); i++) {
+                if (text.charAt(i) == padding.charAt(0)) {
+                    continue;
+                }
+                return text.substring(i);
+            }
+            //Jika semua karakter sama seperti padding, maka return huruf terakhir saja
+            return text.substring(text.length()-1);
+        }
+        
+        throw new Exception("Invalid Padding Position");
     }
 }

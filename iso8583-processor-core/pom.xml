@@ -17,6 +17,12 @@
             <artifactId>commons-lang</artifactId>
             <version>${commons-lang.version}</version>
         </dependency>
+        
+        <dependency>
+            <groupId>org.threeten</groupId>
+            <artifactId>threetenbp</artifactId>
+            <version>${org.threetenbp.version}</version>
+        </dependency>
     </dependencies>
 
 </project>
