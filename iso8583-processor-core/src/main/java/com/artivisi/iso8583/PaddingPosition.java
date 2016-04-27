@@ -20,5 +20,5 @@ package com.artivisi.iso8583;
  * @author adi
  */
 public enum PaddingPosition {
-    RIGHT, LEFT
+    RIGHT, LEFT, NOPAD
 }

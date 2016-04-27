@@ -16,7 +16,6 @@
 package com.artivisi.iso8583;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.Collections;
 import java.util.Comparator;
@@ -217,8 +216,11 @@ public class Processor {
                     }
                     
                     int idxDot = sub.getTypeFormat().indexOf(".");
-                    int scale = sub.getTypeFormat().substring(idxDot+1).length();
-                    BigDecimal value = new BigDecimal(strData).divide(BigDecimal.TEN.multiply(new BigDecimal(scale)), scale, RoundingMode.HALF_EVEN);
+                    int scale = 0;
+                    if(idxDot > -1){
+                        scale = sub.getTypeFormat().substring(idxDot+1).length();
+                    }
+                    BigDecimal value = new BigDecimal(strData).divide(BigDecimal.TEN.pow(scale), scale, RoundingMode.HALF_EVEN);
                     result.put(sub.getElementName(), value);
                 } else if(sub.getType().equals(DataElementType.DATE)){
                     if(sub.getTypeFormat()==null || sub.getTypeFormat().length()<1){
@@ -263,24 +265,29 @@ public class Processor {
             throw new Exception("Invalid text for remove padding");
         }
 
-        if (position.equals(PaddingPosition.RIGHT)) {
-            for (int i = text.length() - 1; i > -1; i--) {
-                if (text.charAt(i) == padding.charAt(0)) {
-                    continue;
+        switch (position) {
+            case RIGHT:
+                for (int i = text.length() - 1; i > -1; i--) {
+                    if (text.charAt(i) == padding.charAt(0)) {
+                        continue;
+                    }
+                    return text.substring(0, i + 1);
                 }
-                return text.substring(0, i + 1);
-            }
-            //Jika semua karakter sama seperti padding, maka return huruf pertama saja
-            return text.substring(0, 1);
-        } else if (position.equals(PaddingPosition.LEFT)) {
-            for (int i = 0; i < text.length(); i++) {
-                if (text.charAt(i) == padding.charAt(0)) {
-                    continue;
+                //Jika semua karakter sama seperti padding, maka return huruf pertama saja
+                return text.substring(0, 1);
+            case LEFT:
+                for (int i = 0; i < text.length(); i++) {
+                    if (text.charAt(i) == padding.charAt(0)) {
+                        continue;
+                    }
+                    return text.substring(i);
                 }
-                return text.substring(i);
-            }
-            //Jika semua karakter sama seperti padding, maka return huruf terakhir saja
-            return text.substring(text.length()-1);
+                //Jika semua karakter sama seperti padding, maka return huruf terakhir saja
+                return text.substring(text.length()-1);
+            case NOPAD:
+                return text;
+            default:
+                break;
         }
         
         throw new Exception("Invalid Padding Position");
