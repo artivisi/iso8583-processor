@@ -17,6 +17,8 @@ package com.artivisi.iso8583;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -187,16 +189,19 @@ public class Processor {
         return builder.toString();
     }
     
-    public static Map<String, Object> convertToMap(List<SubElement> subElements, String stream){
+    public static Map<String, Object> convertToMap(
+            List<SubElement> subElements, String stream, 
+            Integer[] repeatedNumber, Map<Integer, String> repeatedRange){
+        
         if(subElements.isEmpty()) return null;
             
         Collections.sort(subElements, new SubElementsComparator());
         
-        Integer requiredLength = calculateLengthSubElement(subElements);
-        if(stream.length() < requiredLength) {
-            LOGGER.error("[CONVERT2MAP] - [SUBELEMENT] : Invalid stream length. expected:{} actual:{}", requiredLength, stream.length());
-            throw new IllegalStateException("Invalid Stream Length. Required Length is : " + requiredLength + " on DataElement:" + subElements.get(0).getDataElement().getNumber());
-        }
+//        Integer requiredLength = calculateLengthSubElement(subElements);
+//        if(stream.length() < requiredLength) {
+//            LOGGER.error("[CONVERT2MAP] - [SUBELEMENT] : Invalid stream length. expected:{} actual:{}", requiredLength, stream.length());
+//            throw new IllegalStateException("Invalid Stream Length. Required Length is : " + requiredLength + " on DataElement:" + subElements.get(0).getDataElement().getNumber());
+//        }
         
         int currentPosition = 0;
         Map<String, Object> result = new HashMap<>();
@@ -206,35 +211,26 @@ public class Processor {
                 String strData = stream.substring(currentPosition, currentPosition + sub.getLength());
                 strData = removePadding(strData, sub.getPadding(), sub.getPaddingPosition());
                 
-                if(sub.getType().equals(DataElementType.ALPHANUMERIC)){
-                    result.put(sub.getElementName(), strData);
-                } else if(sub.getType().equals(DataElementType.NUMERIC)){
-                    result.put(sub.getElementName(), Integer.parseInt(strData));
-                } else if(sub.getType().equals(DataElementType.DECIMAL)){
-                    if(sub.getTypeFormat()==null || sub.getTypeFormat().length()<1){
-                        throw new IllegalStateException("Type Format not configured");
-                    }
-                    
-                    int idxDot = sub.getTypeFormat().indexOf(".");
-                    int scale = 0;
-                    if(idxDot > -1){
-                        scale = sub.getTypeFormat().substring(idxDot+1).length();
-                    }
-                    BigDecimal value = new BigDecimal(strData).divide(BigDecimal.TEN.pow(scale), scale, RoundingMode.HALF_EVEN);
-                    result.put(sub.getElementName(), value);
-                } else if(sub.getType().equals(DataElementType.DATE)){
-                    if(sub.getTypeFormat()==null || sub.getTypeFormat().length()<1){
-                        throw new IllegalStateException("Type Format not configured");
-                    }
-                    
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern(sub.getTypeFormat()).withZone(ZoneId.systemDefault());
-                    Date value = new Date(formatter.parse(strData).getLong(ChronoField.MILLI_OF_SECOND));
-                    result.put(sub.getElementName(), value);
-                } else {
-                    throw new IllegalStateException("Invalid Data Element Type : " + sub.getType().name());
+                //Check if column is index for repeated
+                //Build List Object from repeated value and skip next step
+                if(Arrays.asList(repeatedNumber).contains(sub.getNumber())){
+                    LOGGER.info("DataElement [{}] has repeated data in index [{}]", 
+                            sub.getDataElement().getElementName(), 
+                            repeatedRange.get(sub.getNumber()));
+                    currentPosition += inputToMap(sub, result, strData);
+                    currentPosition += buildListObject(
+                            result, subElements, sub.getNumber(), 
+                            Integer.parseInt(strData), repeatedRange.get(sub.getNumber()), 
+                            stream, currentPosition);
+                    continue;
                 }
                 
-                currentPosition += sub.getLength();
+                if(isRepeatedElement(sub.getNumber(), repeatedRange)){
+                    LOGGER.debug("SubElement index[{}] is repeated column, skip this", sub.getNumber());
+                    continue;
+                }
+                
+                currentPosition += inputToMap(sub, result, strData);
             } catch (Exception ex) {
                 LOGGER.error("{} : SubElement:[{}]", ex.getMessage(), sub.getNumber());
                 throw new IllegalStateException(ex.getMessage(), ex);
@@ -292,4 +288,84 @@ public class Processor {
         
         throw new Exception("Invalid Padding Position");
     }
+    
+    private static Integer inputToMap(SubElement sub, Map<String, Object> result, String strData) {
+        switch (sub.getType()) {
+            case ALPHANUMERIC:
+                result.put(sub.getElementName(), strData);
+                break;
+            case NUMERIC:
+                result.put(sub.getElementName(), Integer.parseInt(strData));
+                break;
+            case DECIMAL:
+                {
+                    if (sub.getTypeFormat() == null || sub.getTypeFormat().length() < 1) {
+                        throw new IllegalStateException("Type Format not configured");
+                    }       int idxDot = sub.getTypeFormat().indexOf(".");
+                    int scale = 0;
+                    if (idxDot > -1) {
+                        scale = sub.getTypeFormat().substring(idxDot + 1).length();
+                    }       BigDecimal value = new BigDecimal(strData).divide(BigDecimal.TEN.pow(scale), scale, RoundingMode.HALF_EVEN);
+                    result.put(sub.getElementName(), value);
+                    break;
+                }
+            case DATE:
+                {
+                    if (sub.getTypeFormat() == null || sub.getTypeFormat().length() < 1) {
+                        throw new IllegalStateException("Type Format not configured");
+                    }       DateTimeFormatter formatter = DateTimeFormatter.ofPattern(sub.getTypeFormat()).withZone(ZoneId.systemDefault());
+                    Date value = new Date(formatter.parse(strData).getLong(ChronoField.MILLI_OF_SECOND));
+                    result.put(sub.getElementName(), value);
+                    break;
+                }
+            default:
+                throw new IllegalStateException("Invalid Data Element Type : " + sub.getType().name());
+        }
+        
+        return sub.getLength();
+    }
+    
+    private static boolean isRepeatedElement(Integer number, Map<Integer, String> repeatedRange){
+        for(String val : repeatedRange.values()){
+            String[] arrValue = val.split("-");
+            
+            if(Integer.parseInt(arrValue[0]) >= number && number <= Integer.parseInt(arrValue[1])){
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    private static Integer buildListObject(
+            Map<String, Object> result, List<SubElement> subElements, 
+            Integer indexRepeat, Integer totalRepeat, String repeatRange, 
+            String stream, Integer currentPosition) throws Exception{
+        //Initial Object
+        Integer lengthUsed = 0;
+        List<Map<String, Object>> listRepeat = new ArrayList<>();
+        
+        //Loop by totalRepeat value
+        for(int i=0; i<totalRepeat; i++){
+            //Create Object for save, 1 record repeated part
+            Map<String, Object> dataRepeat = new HashMap<>();
+            String[] ranges = repeatRange.split("-");
+            Integer minRange = Integer.parseInt(ranges[0]);
+            Integer maxRange = Integer.parseInt(ranges[1]);
+            
+            for(int r=minRange; r<=maxRange; r++){
+                SubElement se = subElements.get(r);
+                String strData = stream.substring(currentPosition, currentPosition + se.getLength());
+                strData = removePadding(strData, se.getPadding(), se.getPaddingPosition());
+                
+                //put key and value, for dataRepeat with method inputToMap
+                lengthUsed += inputToMap(se, dataRepeat, strData);
+            }
+            
+            listRepeat.add(dataRepeat);
+        }
+        
+        result.put(subElements.get(indexRepeat).getElementName(), listRepeat);
+        return lengthUsed;
+    }
+    
 }

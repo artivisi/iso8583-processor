@@ -45,7 +45,10 @@ CREATE TABLE iso8583_dataelement (
   dataelement_type character varying(12) NOT NULL,
   dataelement_length_type character varying(8) NOT NULL,
   dataelement_length integer DEFAULT NULL,
-  dataelement_length_prefix integer DEFAULT NULL
+  dataelement_length_prefix integer DEFAULT NULL, 
+  dataelement_repeated_colidx character varying (30) DEFAULT NULL, 
+  dataelement_repeated_colrange character varying (30) DEFAULT NULL, 
+  dataelement_subelement_separator character varying (1) DEFAULT NULL
 );
 ALTER TABLE ONLY iso8583_dataelement
     ADD CONSTRAINT iso8583_dataelement_pkey PRIMARY KEY (id);
@@ -67,9 +70,7 @@ CREATE TABLE iso8583_subelement (
   subelement_length integer NOT NULL,
   subelement_padding character varying(1) DEFAULT NULL,
   subelement_padding_pos character varying(5) DEFAULT NULL,
-  subelement_separator character varying(1) DEFAULT NULL,
-  subelement_repeated boolean NOT NULL,
-  subelement_repeated_column character varying(50)
+  subelement_separator character varying(1) DEFAULT NULL
 );
 ALTER TABLE ONLY iso8583_subelement
     ADD CONSTRAINT iso8583_subelement_pkey PRIMARY KEY (id);

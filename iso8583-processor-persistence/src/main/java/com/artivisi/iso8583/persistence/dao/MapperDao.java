@@ -41,20 +41,67 @@ import java.util.UUID;
 @Repository
 public class MapperDao {
 
-    private static final String SQL_INSERT_MAPPER = "insert into iso8583_mapper (id, name, description) values (:id, :name,:description)";
-    private static final String SQL_COUNT_MAPPER = "select count(*) from iso8583_mapper";
-    private static final String SQL_FIND_ALL_MAPPER = "select * from iso8583_mapper limit ?,?";
-    private static final String SQL_FIND_MAPPER_BY_ID = "select * from iso8583_mapper where id=?";
-    private static final String SQL_FIND_MAPPER_BY_NAME = "select * from iso8583_mapper where name=?";
-    private static final String SQL_DELETE_MAPPER_BY_ID = "delete from iso8583_mapper where id=?";
+    //Query Table iso8583_mapper
+    private static final String SQL_INSERT_MAPPER = 
+            "INSERT INTO " +
+            "       iso8583_mapper (id, name, description) " +
+            "VALUES (:id, :name,:description)";
+    private static final String SQL_COUNT_MAPPER = 
+            "SELECT COUNT(m.id) FROM iso8583_mapper m";
+    private static final String SQL_FIND_ALL_MAPPER = 
+            "SELECT m.* FROM iso8583_mapper m limit ?,?";
+    private static final String SQL_FIND_MAPPER_BY_ID = 
+            "SELECT m.* FROM iso8583_mapper m where m.id=?";
+    private static final String SQL_FIND_MAPPER_BY_NAME = 
+            "SELECT m.* FROM iso8583_mapper m WHERE m.name=?";
+    private static final String SQL_DELETE_MAPPER_BY_ID = 
+            "DELETE FROM iso8583_mapper m WHERE m.id=?";
 
-    private static final String SQL_FIND_DATAELEMENT_BY_ID_MAPPER = "select * from iso8583_dataelement where id_mapper=?";
-    private static final String SQL_INSERT_DATA_ELEMENT = "insert into iso8583_dataelement " +
-            "(id, id_mapper, dataelement_number, dataelement_name, dataelement_type, dataelement_length_type, dataelement_length, dataelement_length_prefix) " +
-            "values (:id, :id_mapper, :dataelement_number, :dataelement_name, :dataelement_type, :dataelement_length_type, :dataelement_length, :dataelement_length_prefix)";
-    private static final String SQL_DELETE_DATA_ELEMENT_BY_MAPPER = "delete from iso8583_dataelement where id_mapper = ?";
+    //Query Table iso8583_dataelement
+    private static final String SQL_FIND_ONE_DATAELEMENT = 
+            "SELECT de.* FROM iso8583_dataelement de WHERE de.id=?";
+    private static final String SQL_FIND_DATAELEMENT_BY_ID_MAPPER = 
+            "SELECT de.* FROM iso8583_dataelement de WHERE de.id_mapper=?";
+    private static final String SQL_INSERT_DATA_ELEMENT = 
+            "INSERT INTO " + 
+            "       iso8583_dataelement (" + 
+            "           id, " + 
+            "           id_mapper, " + 
+            "           dataelement_number, " + 
+            "           dataelement_name, " + 
+            "           dataelement_type, " + 
+            "           dataelement_length_type, " + 
+            "           dataelement_length, " + 
+            "           dataelement_length_prefix, " + 
+            "           dataelement_repeated_colidx, " + 
+            "           dataelement_repeated_colrange, " + 
+            "           dataelement_subelement_separator" + 
+            "       ) VALUES (:id, " + 
+            "           :id_mapper, " + 
+            "           :dataelement_number, " + 
+            "           :dataelement_name, " + 
+            "           :dataelement_type, " + 
+            "           :dataelement_length_type, " + 
+            "           :dataelement_length, " + 
+            "           :dataelement_length_prefix, " + 
+            "           :dataelement_repeated_colidx, " + 
+            "           :dataelement_repeated_colrange, " + 
+            "           :dataelement_subelement_separator " +
+            "       )";
+    private static final String SQL_DELETE_DATA_ELEMENT_BY_MAPPER = 
+            "DELETE FROM iso8583_dataelement de WHERE de.id_mapper = ?";
     
-    private static final String SQL_FIND_SUBELEMENT_BY_ID_ELEMENT = "select * from iso8583_subelement where id_data_element=?";
+    private static final String SQL_FIND_SUBELEMENT_BY_ID_ELEMENT = 
+            "SELECT sub.id, " +
+            "	    sub.subelement_number, " +
+            "	    sub.subelement_name, " +
+            "	    sub.subelement_type, " +
+            "	    sub.subelement_type_format, " +
+            "	    sub.subelement_length, " +
+            "	    sub.subelement_padding, " +
+            "	    sub.subelement_padding_pos " + 
+            "FROM   iso8583_subelement sub " + 
+            "WHERE  sub.id_data_element=?";
     private static final String SQL_FIND_SUBELEMENT_BY_ELEMENT_NUMBER_AND_MAPPER = 
                                 "select	sub.id, " +
                                 "	sub.subelement_number, " +
@@ -63,9 +110,8 @@ public class MapperDao {
                                 "	sub.subelement_type_format, " +
                                 "	sub.subelement_length, " +
                                 "	sub.subelement_padding, " +
-                                "	sub.subelement_padding_pos, " +
-                                "	sub.subelement_repeated, " +
-                                "	sub.subelement_repeated_column " +
+                                "	sub.subelement_padding_pos,   " +
+                                "	sub.id_data_element  " +
                                 "FROM	iso8583_subelement sub " +
                                 "LEFT JOIN iso8583_dataelement data " +
                                 "     ON sub.id_data_element=data.id " +
@@ -74,10 +120,31 @@ public class MapperDao {
                                 "WHERE	data.dataelement_number = ? " +
                                 "     AND mapper.name=? " +
                                 "ORDER BY sub.subelement_number";
-    private static final String SQL_INSERT_SUB_ELEMENT = "insert into iso8583_subelement "
-            + "(id, id_data_element, subelement_number, subelement_name, subelement_type, subelement_type_format, subelement_length, subelement_padding, subelement_padding_pos, subelement_repeated, subelement_repeated_column) "
-            + "values (:id, :id_data_element, :subelement_number, :subelement_name, :subelement_type, :subelement_type_format, :subelement_length, :subelement_padding, :subelement_padding_pos, :subelement_repeated, :subelement_repeated_column)";
-    private static final String SQL_DELETE_SUB_ELEMENT_BY_ID_DATA_ELEMENT = "delete from iso8583_subelement where id_data_element = ?";
+    private static final String SQL_INSERT_SUB_ELEMENT = 
+            "INSERT INTO " +
+            "       iso8583_subelement ( " + 
+            "            id, " + 
+            "            id_data_element, " + 
+            "            subelement_number, " +
+            "            subelement_name, " + 
+            "            subelement_type, " + 
+            "            subelement_type_format, " + 
+            "            subelement_length, " + 
+            "            subelement_padding, " +
+            "            subelement_padding_pos" + 
+            "       ) VALUES (" + 
+            "            :id, " + 
+            "            :id_data_element, " + 
+            "            :subelement_number, " + 
+            "            :subelement_name, " + 
+            "            :subelement_type, " + 
+            "            :subelement_type_format, " + 
+            "            :subelement_length, " + 
+            "            :subelement_padding, " + 
+            "            :subelement_padding_pos " +
+            "       )";
+    private static final String SQL_DELETE_SUB_ELEMENT_BY_ID_DATA_ELEMENT = 
+            "DELETE FROM iso8583_subelement se WHERE se.id_data_element = ?";
 
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private JdbcTemplate jdbcTemplate;
@@ -105,6 +172,9 @@ public class MapperDao {
             params.put("dataelement_length_type", de.getLengthType().name());
             params.put("dataelement_length", de.getLength());
             params.put("dataelement_length_prefix", de.getLengthPrefix());
+            params.put("dataelement_repeated_colidx", de.getRepeatedColumnIndex());
+            params.put("dataelement_repeated_colrange", de.getRepeatedColumnRange());
+            params.put("dataelement_subelement_separator", de.getSubElementSeparator());
 
             namedParameterJdbcTemplate.update(SQL_INSERT_DATA_ELEMENT, params);
             
@@ -119,8 +189,6 @@ public class MapperDao {
                 subParams.put("subelement_length", sub.getLength());
                 subParams.put("subelement_padding", sub.getPadding());
                 subParams.put("subelement_padding_pos", sub.getPaddingPosition().name());
-                subParams.put("subelement_repeated", sub.getRepeated());
-                subParams.put("subelement_repeated_column", sub.getRepeatedColumn());
                 
                 namedParameterJdbcTemplate.update(SQL_INSERT_SUB_ELEMENT, subParams);
             }
@@ -223,6 +291,9 @@ public class MapperDao {
             de.setNumber((Integer)resultSet.getObject("dataelement_number"));
             de.setElementName((String) resultSet.getString("dataelement_name"));
             de.setType(DataElementType.valueOf(resultSet.getString("dataelement_type")));
+            de.setRepeatedColumnIndex(resultSet.getString("dataelement_repeated_colidx"));
+            de.setRepeatedColumnRange(resultSet.getString("dataelement_repeated_colrange"));
+            de.setSubElementSeparator(resultSet.getString("dataelement_subelement_separator"));
             return de;
         }
     }
@@ -240,8 +311,12 @@ public class MapperDao {
             se.setLength((Integer)resultSet.getObject("subelement_length"));
             se.setPadding(resultSet.getString("subelement_padding"));
             se.setPaddingPosition(PaddingPosition.valueOf(resultSet.getString("subelement_padding_pos")));
-            se.setRepeated(resultSet.getBoolean("subelement_repeated"));
-            se.setRepeatedColumn(resultSet.getString("subelement_repeated_column"));
+            
+            if(resultSet.getString("id_data_element") != null) {
+                se.setDataElement(jdbcTemplate.queryForObject(SQL_FIND_ONE_DATAELEMENT, new DataElementFromResultSet(), 
+                        resultSet.getString("id_data_element")));
+            }
+            
             return se;
         }
     }

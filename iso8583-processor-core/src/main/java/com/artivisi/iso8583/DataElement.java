@@ -27,6 +27,9 @@ public class DataElement {
     private DataElementLength lengthType;
     private Integer length = 0;
     private Integer lengthPrefix = 0;
+    private String repeatedColumnIndex;
+    private String repeatedColumnRange;
+    private String subElementSeparator;
     private List<SubElement> subElements = new ArrayList<>();
 
     public String getId() {
@@ -106,6 +109,30 @@ public class DataElement {
     public DataElement setElementName(String elementName) {
         this.elementName = elementName;
         return this;
+    }
+
+    public String getRepeatedColumnIndex() {
+        return repeatedColumnIndex;
+    }
+
+    public void setRepeatedColumnIndex(String repeatedColumnIndex) {
+        this.repeatedColumnIndex = repeatedColumnIndex;
+    }
+
+    public String getRepeatedColumnRange() {
+        return repeatedColumnRange;
+    }
+
+    public void setRepeatedColumnRange(String repeatedColumnRange) {
+        this.repeatedColumnRange = repeatedColumnRange;
+    }
+
+    public String getSubElementSeparator() {
+        return subElementSeparator;
+    }
+
+    public void setSubElementSeparator(String subElementSeparator) {
+        this.subElementSeparator = subElementSeparator;
     }
     
 }
