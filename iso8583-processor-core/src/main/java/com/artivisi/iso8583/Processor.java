@@ -213,21 +213,23 @@ public class Processor {
                 
                 //Check if column is index for repeated
                 //Build List Object from repeated value and skip next step
-                if(Arrays.asList(repeatedNumber).contains(sub.getNumber())){
-                    LOGGER.info("DataElement [{}] has repeated data in index [{}]", 
-                            sub.getDataElement().getElementName(), 
-                            repeatedRange.get(sub.getNumber()));
-                    currentPosition += inputToMap(sub, result, strData);
-                    currentPosition += buildListObject(
-                            result, subElements, sub.getNumber(), 
-                            Integer.parseInt(strData), repeatedRange.get(sub.getNumber()), 
-                            stream, currentPosition);
-                    continue;
-                }
-                
-                if(isRepeatedElement(sub.getNumber(), repeatedRange)){
-                    LOGGER.debug("SubElement index[{}] is repeated column, skip this", sub.getNumber());
-                    continue;
+                if(repeatedNumber != null){
+                    if(Arrays.asList(repeatedNumber).contains(sub.getNumber())){
+                        LOGGER.info("DataElement [{}] has repeated data in index [{}]", 
+                                sub.getDataElement().getElementName(), 
+                                repeatedRange.get(sub.getNumber()));
+                        currentPosition += inputToMap(sub, result, strData);
+                        currentPosition += buildListObject(
+                                result, subElements, sub.getNumber(), 
+                                Integer.parseInt(strData), repeatedRange.get(sub.getNumber()), 
+                                stream, currentPosition);
+                        continue;
+                    }
+
+                    if(isRepeatedElement(sub.getNumber(), repeatedRange)){
+                        LOGGER.debug("SubElement index[{}] is repeated column, skip this", sub.getNumber());
+                        continue;
+                    }
                 }
                 
                 currentPosition += inputToMap(sub, result, strData);
@@ -326,6 +328,11 @@ public class Processor {
     }
     
     private static boolean isRepeatedElement(Integer number, Map<Integer, String> repeatedRange){
+        if(repeatedRange==null){
+            LOGGER.debug("SubElement Number {} is not repeated");
+            return false;
+        }
+        
         for(String val : repeatedRange.values()){
             String[] arrValue = val.split("-");
             
