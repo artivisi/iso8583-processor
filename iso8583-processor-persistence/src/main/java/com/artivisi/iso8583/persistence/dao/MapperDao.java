@@ -21,6 +21,7 @@ import com.artivisi.iso8583.DataElementType;
 import com.artivisi.iso8583.Mapper;
 import com.artivisi.iso8583.PaddingPosition;
 import com.artivisi.iso8583.SubElement;
+import com.artivisi.iso8583.helper.DatabaseHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -312,9 +313,11 @@ public class MapperDao {
             se.setPadding(resultSet.getString("subelement_padding"));
             se.setPaddingPosition(PaddingPosition.valueOf(resultSet.getString("subelement_padding_pos")));
             
-            if(resultSet.getString("id_data_element") != null) {
-                se.setDataElement(jdbcTemplate.queryForObject(SQL_FIND_ONE_DATAELEMENT, new DataElementFromResultSet(), 
-                        resultSet.getString("id_data_element")));
+            if(DatabaseHelper.hasColumn(resultSet, "id_data_element")){
+                if(resultSet.getString("id_data_element") != null) {
+                    se.setDataElement(jdbcTemplate.queryForObject(SQL_FIND_ONE_DATAELEMENT, new DataElementFromResultSet(), 
+                            resultSet.getString("id_data_element")));
+                }
             }
             
             return se;
