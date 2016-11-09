@@ -1,0 +1,38 @@
+==========================
+RELEASE NOTE
+==========================
+
+================================================================
+Versi 1.1.2 (2016-11-09)
+[NEW]
+- Menggunakan FlywayDB untuk migrasi database
+- Fitur Konversi Dataelement (bit) yang mempunyai details (Subelement) ke Object Map
+
+[CONTRIBUTORS]
+Adi Sulistiono (20):
+      fixing bitmap, yang tidak membaca bit63
+      upgrade library dan hapus liquibase
+      membuat sub element
+      fixing dao mapper
+      fixing dao dan membuat sql untuk flywaydb
+      fixing header license
+      fixing sql flywaydb untuk database postgre
+      ubah struktur table SubElement
+      ubah query crud SubElement dan bikin query findSubElement by ElementNumber
+      Buat Processor untuk merubah subElement menjadi Object Map
+      fixing convert data subelement type Decimal
+      Merge branch 'master' of repo.artivisi.com:product/iso-processor
+      support convert2Map with repeated value
+      upate versi 1.1.1-SNAPSHOT
+      handle column not found
+      handle null di repeated column dan rangeindex
+      naik versi 1.1.2-SNAPSHOT
+      implementasi multiple subelement berdasarkan jenis message yang akan diconvert ke map
+      fixing query subelement
+      set version 1.1.2
+
+Endy Muhardin (1):
+      [maven-release-plugin] prepare for next development iteration
+
+anggi riyandi (1):
+      iso processor fix
