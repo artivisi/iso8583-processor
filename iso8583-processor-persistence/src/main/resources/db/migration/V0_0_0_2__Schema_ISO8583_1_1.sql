@@ -29,9 +29,9 @@
 ALTER TABLE ONLY iso8583_mapper
     ADD COLUMN keymsg character varying(10);
 UPDATE iso8583_mapper set keymsg = '';
-ALTER TABLE iso8583_mapper ALTER COLUMN keymsg ADD NOT NULL;
+ALTER TABLE iso8583_mapper ALTER COLUMN keymsg SET NOT NULL;
 
 ALTER TABLE ONLY iso8583_subelement
     ADD COLUMN subelement_keygroup character varying(25);
 UPDATE iso8583_subelement set subelement_keygroup = '';
-ALTER TABLE iso8583_subelement ALTER COLUMN subelement_keygroup ADD NOT NULL;
+ALTER TABLE iso8583_subelement ALTER COLUMN subelement_keygroup SET NOT NULL;

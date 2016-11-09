@@ -100,7 +100,8 @@ public class MapperDao {
             "	    sub.subelement_type_format, " +
             "	    sub.subelement_length, " +
             "	    sub.subelement_padding, " +
-            "	    sub.subelement_padding_pos " + 
+            "	    sub.subelement_padding_pos, " + 
+            "	    sub.subelement_keygroup " + 
             "FROM   iso8583_subelement sub " + 
             "WHERE  sub.id_data_element=?";
     private static final String SQL_FIND_SUBELEMENT_BY_ELEMENT_NUMBER_AND_MAPPER = 
@@ -134,7 +135,8 @@ public class MapperDao {
             "            subelement_type_format, " + 
             "            subelement_length, " + 
             "            subelement_padding, " +
-            "            subelement_padding_pos" + 
+            "            subelement_padding_pos, " + 
+            "            subelement_keygroup" + 
             "       ) VALUES (" + 
             "            :id, " + 
             "            :id_data_element, " + 
@@ -144,7 +146,8 @@ public class MapperDao {
             "            :subelement_type_format, " + 
             "            :subelement_length, " + 
             "            :subelement_padding, " + 
-            "            :subelement_padding_pos " +
+            "            :subelement_padding_pos, " +
+            "            :subelement_keygroup " +
             "       )";
     private static final String SQL_DELETE_SUB_ELEMENT_BY_ID_DATA_ELEMENT = 
             "DELETE FROM iso8583_subelement se WHERE se.id_data_element = ?";
@@ -192,6 +195,7 @@ public class MapperDao {
                 subParams.put("subelement_length", sub.getLength());
                 subParams.put("subelement_padding", sub.getPadding());
                 subParams.put("subelement_padding_pos", sub.getPaddingPosition().name());
+                subParams.put("subelement_keygroup", sub.getKeyGroup());
                 
                 namedParameterJdbcTemplate.update(SQL_INSERT_SUB_ELEMENT, subParams);
             }
