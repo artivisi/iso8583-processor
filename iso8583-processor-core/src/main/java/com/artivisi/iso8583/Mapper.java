@@ -22,6 +22,7 @@ public class Mapper {
     private String id;
     private String name;
     private String description;
+    private String keyMessage;
     private Map<Integer, DataElement> dataElement = new HashMap<Integer, DataElement>();
 
     public String getId() {
@@ -55,4 +56,13 @@ public class Mapper {
     public void setDataElement(Map<Integer, DataElement> dataElement) {
         this.dataElement = dataElement;
     }
+
+    public String getKeyMessage() {
+        return keyMessage;
+    }
+
+    public void setKeyMessage(String keyMessage) {
+        this.keyMessage = keyMessage;
+    }
+    
 }

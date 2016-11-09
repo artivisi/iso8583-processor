@@ -39,10 +39,7 @@ public class ProcessorTest {
         String echoRequestStream = "0800A22000000080001004000000000000001010102012122408470800000110101010        019ArtiVisi Intermedia301";
         String echoResponseStream = "0810A2200000028000100400000000000000101010201212240850000000010010101010        019ArtiVisi Intermedia301";
 
-        Processor processor = new Processor();
-        processor.setMapper(configureMapper());
-
-        Message echoRequest = processor.stringToMessage(echoRequestStream);
+        Message echoRequest = Processor.getInstance(configureMapper()).stringToMessage(echoRequestStream);
         assertNotNull(echoRequest.getPrimaryBitmap());
         assertEquals("A220000000800010", echoRequest.getPrimaryBitmapStream());
 
@@ -64,7 +61,7 @@ public class ProcessorTest {
         assertEquals("301", echoRequest.getDataElementContent().get(70));
         assertNull(echoRequest.getDataElementContent().get(39));
 
-        Message echoResponse = processor.stringToMessage(echoResponseStream);
+        Message echoResponse = Processor.getInstance(configureMapper()).stringToMessage(echoResponseStream);
         assertNotNull(echoResponse.getPrimaryBitmap());
         assertNotNull(echoResponse.getSecondaryBitmap());
         assertTrue(echoResponse.isDataElementPresent(3));
@@ -92,9 +89,6 @@ public class ProcessorTest {
         String echoRequestStream = "0800A22000000080001004000000000000001010102012122408470800000110101010        019ArtiVisi Intermedia301";
         String echoResponseStream = "0810A2200000028000100400000000000000101010201212240850000000010010101010        019ArtiVisi Intermedia301";
 
-        Processor processor = new Processor();
-        processor.setMapper(configureMapper());
-
         Message echoRequest = new Message();
         echoRequest.setMti("0800");
         echoRequest.getDataElementContent().put(3, "101010");
@@ -104,7 +98,7 @@ public class ProcessorTest {
         echoRequest.getDataElementContent().put(60, "ArtiVisi Intermedia");
         echoRequest.getDataElementContent().put(70, "301");
 
-        assertEquals(echoRequestStream, processor.messageToString(echoRequest));
+        assertEquals(echoRequestStream, Processor.getInstance(configureMapper()).messageToString(echoRequest));
 
         Message echoResponse = new Message();
         echoResponse.setMti("0810");
@@ -116,7 +110,7 @@ public class ProcessorTest {
         echoResponse.getDataElementContent().put(60, "ArtiVisi Intermedia");
         echoResponse.getDataElementContent().put(70, "301");
 
-        assertEquals(echoResponseStream, processor.messageToString(echoResponse));
+        assertEquals(echoResponseStream, Processor.getInstance(configureMapper()).messageToString(echoResponse));
     }
 
     private Mapper configureMapper() {

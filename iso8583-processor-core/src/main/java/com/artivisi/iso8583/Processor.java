@@ -35,22 +35,21 @@ import org.threeten.bp.temporal.ChronoField;
 
 public class Processor {
     private static final Logger LOGGER = LoggerFactory.getLogger(Processor.class);
-    private static final Integer HEXADECIMAL = 16;
-    private static final Integer BINARY = 2;
     private static final Integer MTI_LENGTH = 4;
     private static final Integer BITMAP_LENGTH = 16;
     private static final Integer NUMBER_OF_DATA_ELEMENT = 128;
-    private Mapper mapper;
+    private static Mapper mapper;
+    private static Processor instance;
 
-    public Mapper getMapper() {
-        return mapper;
+    public static Processor getInstance(Mapper mapper) {
+        if (instance == null) {
+            instance = new Processor();
+        }
+        instance.mapper = mapper;
+        return instance;
     }
-
-    public void setMapper(Mapper mapper) {
-        this.mapper = mapper;
-    }
-
-    public Message stringToMessage(String stream){
+    
+    public static Message stringToMessage(String stream){
         if(stream == null || stream.trim().length() < MTI_LENGTH + BITMAP_LENGTH) {
             throw new IllegalArgumentException("Invalid Message : ["+stream+"]");
         }
@@ -130,7 +129,7 @@ public class Processor {
         return m;
     }
 
-    public String messageToString(Message message) {
+    public static String messageToString(Message message) {
         message.calculateBitmap();
 
         LOGGER.debug("[MESSAGE2STRING] - [MTI] : [{}]", message.getMti());
@@ -189,7 +188,7 @@ public class Processor {
         return builder.toString();
     }
     
-    public static Map<String, Object> convertToMap(
+    private static Map<String, Object> convertToMap(
             List<SubElement> subElements, String stream, 
             Integer[] repeatedNumber, Map<Integer, String> repeatedRange){
         
@@ -239,6 +238,30 @@ public class Processor {
             }
         }
         return result;
+    }
+    
+    public static String getKeyMessage(Message message){
+        String bitKey = mapper.getKeyMessage();
+        if(bitKey==null || bitKey.length()<1){
+            throw new IllegalStateException("Mapper " + mapper.getName() + " dont have Key Message");
+        }
+        
+        String[] arrKey = bitKey.split("-");
+        Integer bitRC = Integer.parseInt(arrKey[0]);
+        String keymsg = "REQ";
+        if(message.getDataElementContent().containsKey(bitRC)){
+            keymsg = "RESP";
+        }
+        
+        for(int i=1; i<arrKey.length; i++){
+            if(arrKey[i].equalsIgnoreCase("MTI")){
+                keymsg = keymsg.concat("-").concat(message.getMti());
+            } else {
+                keymsg = keymsg.concat("-").concat(message.getDataElementContent().get(Integer.parseInt(arrKey[i])));
+            }
+        }
+        
+        return keymsg;
     }
     
     private static class SubElementsComparator implements Comparator<SubElement> {
@@ -375,4 +398,28 @@ public class Processor {
         return lengthUsed;
     }
     
+    public static Map<String, Object> stream2Map(List<SubElement> subElements, String stream) {
+        DataElement de = subElements.get(0).getDataElement();
+        String[] strRepeatedNumber = null;
+        Integer[] repeatedNumber = null;
+        Map<Integer, String> repeatedRange = null;
+        
+        if(de.getRepeatedColumnIndex() != null && de.getRepeatedColumnIndex().length() > 0){
+            strRepeatedNumber = de.getRepeatedColumnIndex().split(",");
+            
+            if(de.getRepeatedColumnRange()==null){
+                throw new IllegalStateException("Invalid NULL value on column repeated_range in data element : " + de.getElementName());
+            }
+            
+            String[] strRepeatedRange = de.getRepeatedColumnRange().split(",");
+            repeatedNumber = new Integer[strRepeatedNumber.length];
+            repeatedRange = new HashMap<>();
+            for(int i=0; i<strRepeatedNumber.length; i++){
+                repeatedNumber[i] = Integer.parseInt(strRepeatedNumber[i]);
+                repeatedRange.put(i, strRepeatedRange[i]);
+            }
+        }
+        
+        return convertToMap(subElements, stream, repeatedNumber, repeatedRange);
+    }
 }

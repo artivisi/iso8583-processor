@@ -112,13 +112,15 @@ public class MapperDao {
                                 "	sub.subelement_length, " +
                                 "	sub.subelement_padding, " +
                                 "	sub.subelement_padding_pos,   " +
+                                "	sub.subelement_keygroup,   " +
                                 "	sub.id_data_element  " +
                                 "FROM	iso8583_subelement sub " +
                                 "LEFT JOIN iso8583_dataelement data " +
                                 "     ON sub.id_data_element=data.id " +
                                 "LEFT JOIN iso8583_mapper mapper " +
                                 "     ON data.id_mapper = mapper.id " +
-                                "WHERE	data.dataelement_number = ? " +
+                                "WHERE	sub.subelement_keygroup = ? " +
+                                "     AND data.dataelement_number = ? " +
                                 "     AND mapper.name=? " +
                                 "ORDER BY sub.subelement_number";
     private static final String SQL_INSERT_SUB_ELEMENT = 
@@ -258,13 +260,13 @@ public class MapperDao {
         return jdbcTemplate.query(SQL_FIND_ALL_MAPPER, new MapperFromResultSet(), start, rows);
     }
     
-    public List<SubElement> findSubElementByElementNumber(Integer elementNumber, String mapperName) {
-        if(!StringUtils.hasText(mapperName) || elementNumber==null) {
+    public List<SubElement> findSubElementByElementNumber(Integer elementNumber, String mapperName, String keygroup) {
+        if(!StringUtils.hasText(mapperName) || elementNumber==null || !StringUtils.hasText(keygroup)) {
             return null;
         }
         List<SubElement> subElements = jdbcTemplate.query(
                 SQL_FIND_SUBELEMENT_BY_ELEMENT_NUMBER_AND_MAPPER, new SubElementFromResultSet(), 
-                elementNumber, mapperName);
+                keygroup, elementNumber, mapperName);
         return subElements;
     }
 
@@ -276,6 +278,7 @@ public class MapperDao {
             m.setId(resultSet.getString("id"));
             m.setName(resultSet.getString("name"));
             m.setDescription(resultSet.getString("description"));
+            m.setKeyMessage(resultSet.getString("keymsg"));
             return m;
         }
     }
@@ -312,7 +315,7 @@ public class MapperDao {
             se.setLength((Integer)resultSet.getObject("subelement_length"));
             se.setPadding(resultSet.getString("subelement_padding"));
             se.setPaddingPosition(PaddingPosition.valueOf(resultSet.getString("subelement_padding_pos")));
-            
+            se.setKeyGroup(resultSet.getString("subelement_keygroup"));
             if(DatabaseHelper.hasColumn(resultSet, "id_data_element")){
                 if(resultSet.getString("id_data_element") != null) {
                     se.setDataElement(jdbcTemplate.queryForObject(SQL_FIND_ONE_DATAELEMENT, new DataElementFromResultSet(), 

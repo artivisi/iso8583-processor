@@ -88,7 +88,7 @@ public class MapperServiceImpl implements MapperService {
     }
 
     @Override
-    public List<SubElement> findSubElementByElementNumber(Integer elementNumber, String name) {
-        return mapperDao.findSubElementByElementNumber(elementNumber, name);
+    public List<SubElement> findSubElementByElementNumber(Integer elementNumber, String name, String keygroup) {
+        return mapperDao.findSubElementByElementNumber(elementNumber, name, keygroup);
     }
 }

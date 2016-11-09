@@ -30,6 +30,7 @@ public class SubElement {
     private Integer length = 0;
     private String padding;
     private PaddingPosition paddingPosition;
+    private String keyGroup;
 
     public String getId() {
         return id;
@@ -101,6 +102,14 @@ public class SubElement {
 
     public void setTypeFormat(String typeFormat) {
         this.typeFormat = typeFormat;
+    }
+
+    public String getKeyGroup() {
+        return keyGroup;
+    }
+
+    public void setKeyGroup(String keyGroup) {
+        this.keyGroup = keyGroup;
     }
     
 }

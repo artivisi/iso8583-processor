@@ -26,5 +26,5 @@ public interface MapperService {
     List<Mapper> findAllMapper(Integer start, Integer rows);
     Long countAllMapper();
     void delete(Mapper m);
-    List<SubElement> findSubElementByElementNumber(Integer elementNumber, String name);
+    List<SubElement> findSubElementByElementNumber(Integer elementNumber, String name, String keygroup);
 }
