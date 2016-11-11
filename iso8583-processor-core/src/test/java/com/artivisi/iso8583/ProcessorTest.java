@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2012 ArtiVisi Intermedia <info@artivisi.com>
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
  *
- *         http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
  */
 package com.artivisi.iso8583;
 
@@ -22,8 +22,9 @@ import java.math.BigInteger;
 import static org.junit.Assert.*;
 
 public class ProcessorTest {
+
     @Test
-    public void testBitshiftOperation(){
+    public void testBitshiftOperation() {
         String bitmapStream = "1010001000100000000000000000000000000000100000000000000000010000";
         BigInteger bitmap = new BigInteger(bitmapStream, 2);
         System.out.println(bitmap.toString(2));
@@ -33,10 +34,9 @@ public class ProcessorTest {
         assertFalse("Bit 64 enabled", bitmap.testBit(64 - 64));
     }
 
-
     @Test
-    public void stringToIsoMessage(){
-        String echoRequestStream  = "0800A22000000080001004000000000000001010102012122408470800000110101010        019ArtiVisi Intermedia301";
+    public void stringToIsoMessage() {
+        String echoRequestStream = "0800A22000000080001004000000000000001010102012122408470800000110101010        019ArtiVisi Intermedia301";
         String echoResponseStream = "0810A2200000028000100400000000000000101010201212240850000000010010101010        019ArtiVisi Intermedia301";
 
         Processor processor = new Processor();
@@ -54,7 +54,6 @@ public class ProcessorTest {
         assertTrue(echoRequest.isDataElementPresent(41));
         assertTrue(echoRequest.isDataElementPresent(60));
         assertTrue(echoRequest.isDataElementPresent(70));
-
 
         assertEquals("0800", echoRequest.getMti());
         assertEquals("101010", echoRequest.getDataElementContent().get(3));
@@ -89,8 +88,8 @@ public class ProcessorTest {
     }
 
     @Test
-    public void isoMessageToString(){
-        String echoRequestStream  = "0800A22000000080001004000000000000001010102012122408470800000110101010        019ArtiVisi Intermedia301";
+    public void isoMessageToString() {
+        String echoRequestStream = "0800A22000000080001004000000000000001010102012122408470800000110101010        019ArtiVisi Intermedia301";
         String echoResponseStream = "0810A2200000028000100400000000000000101010201212240850000000010010101010        019ArtiVisi Intermedia301";
 
         Processor processor = new Processor();
@@ -120,70 +119,70 @@ public class ProcessorTest {
         assertEquals(echoResponseStream, processor.messageToString(echoResponse));
     }
 
-    private Mapper configureMapper(){
+    private Mapper configureMapper() {
         Mapper m = new Mapper();
         m.getDataElement()
-            .put(3,
-                new DataElement()
-                .setNumber(3)
-                .setLength(6)
-                .setLengthType(DataElementLength.FIXED)
-                .setType(DataElementType.NUMERIC)
-        );
+                .put(3,
+                        new DataElement()
+                        .setNumber(3)
+                        .setLength(6)
+                        .setLengthType(DataElementLength.FIXED)
+                        .setType(DataElementType.NUMERIC)
+                );
 
         m.getDataElement()
-            .put(7,
-                    new DataElement()
-                            .setNumber(7)
-                            .setLength(14)
-                            .setLengthType(DataElementLength.FIXED)
-                            .setType(DataElementType.NUMERIC)
-            );
+                .put(7,
+                        new DataElement()
+                        .setNumber(7)
+                        .setLength(14)
+                        .setLengthType(DataElementLength.FIXED)
+                        .setType(DataElementType.NUMERIC)
+                );
 
         m.getDataElement()
-            .put(11,
-                new DataElement()
+                .put(11,
+                        new DataElement()
                         .setNumber(11)
                         .setLength(6)
                         .setLengthType(DataElementLength.FIXED)
                         .setType(DataElementType.NUMERIC)
-        );
+                );
 
         m.getDataElement()
-            .put(39,
-                    new DataElement()
-                            .setNumber(39)
-                            .setLength(2)
-                            .setLengthType(DataElementLength.FIXED)
-                            .setType(DataElementType.NUMERIC)
-            );
+                .put(39,
+                        new DataElement()
+                        .setNumber(39)
+                        .setLength(2)
+                        .setLengthType(DataElementLength.FIXED)
+                        .setType(DataElementType.NUMERIC)
+                );
 
         m.getDataElement()
-        .put(41,
-                new DataElement()
+                .put(41,
+                        new DataElement()
                         .setNumber(41)
                         .setLength(16)
                         .setLengthType(DataElementLength.FIXED)
                         .setType(DataElementType.ALPHANUMERIC)
-        );
+                );
 
         m.getDataElement()
-            .put(60,
-                    new DataElement()
-                            .setNumber(60)
-                            .setLengthPrefix(3)
-                            .setLengthType(DataElementLength.VARIABLE)
-                            .setType(DataElementType.ALPHANUMERIC)
-            );
+                .put(60,
+                        new DataElement()
+                        .setNumber(60)
+                        .setLengthPrefix(3)
+                        .setLengthType(DataElementLength.VARIABLE)
+                        .setType(DataElementType.ALPHANUMERIC)
+                );
 
         m.getDataElement()
-        .put(70,
-                new DataElement()
+                .put(70,
+                        new DataElement()
                         .setNumber(70)
                         .setLength(3)
                         .setLengthType(DataElementLength.FIXED)
                         .setType(DataElementType.ALPHANUMERIC)
-        );
+                );
         return m;
     }
 

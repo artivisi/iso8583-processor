@@ -15,10 +15,10 @@
  */
 package com.artivisi.iso8583;
 
-public enum DataElementType {
-    NUMERIC,
-    ALPHANUMERIC,
-    DATE,
-    DECIMAL,
-    BINARY
+/**
+ *
+ * @author adi
+ */
+public enum PaddingPosition {
+    RIGHT, LEFT, NOPAD
 }

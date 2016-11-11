@@ -16,6 +16,7 @@
 package com.artivisi.iso8583.persistence;
 
 import com.artivisi.iso8583.Mapper;
+import com.artivisi.iso8583.SubElement;
 import java.util.List;
 
 public interface MapperService {
@@ -25,4 +26,5 @@ public interface MapperService {
     List<Mapper> findAllMapper(Integer start, Integer rows);
     Long countAllMapper();
     void delete(Mapper m);
+    List<SubElement> findSubElementByElementNumber(Integer elementNumber, String name);
 }

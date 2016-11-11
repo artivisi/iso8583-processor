@@ -1,28 +1,26 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>com.artivisi.iso8583</groupId>
+    <parent>
+        <groupId>com.artivisi.iso8583</groupId>
         <artifactId>iso8583-processor</artifactId>
-        <version>1.0.2-SNAPSHOT</version>
-	</parent>
+        <version>1.1.1-SNAPSHOT</version>
+    </parent>
 
-	<artifactId>iso8583-processor-persistence</artifactId>
-	<packaging>jar</packaging>
-	<name>Persistence for Mapping Configuration</name>
+    <artifactId>iso8583-processor-persistence</artifactId>
+    <packaging>jar</packaging>
+    <name>Persistence for Mapping Configuration</name>
 
     <properties>
-        <org.springframework.version>3.2.3.RELEASE</org.springframework.version>
-        <liquibase-maven-plugin.version>2.0.5</liquibase-maven-plugin.version>
-        <mysql.version>5.1.2</mysql.version>
+        <org.springframework.version>4.2.5.RELEASE</org.springframework.version>
+        <mysql.version>5.1.38</mysql.version>
     </properties>
 
-
-	<dependencies>
+    <dependencies>
         <dependency>
             <groupId>com.artivisi.iso8583</groupId>
             <artifactId>iso8583-processor-core</artifactId>
-            <version>1.0.2-SNAPSHOT</version>
+            <version>1.1.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -50,38 +48,14 @@
             <version>${mysql.version}</version>
             <scope>test</scope>
         </dependency>
-	</dependencies>
+        
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>${flywaydb.version}</version>
+        </dependency>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.liquibase</groupId>
-                <artifactId>liquibase-maven-plugin</artifactId>
-                <version>${liquibase-maven-plugin.version}</version>
-                <configuration>
-                    <changeLogFile>src/main/resources/com/artivisi/iso8583/persistence/db/db-changelog.xml</changeLogFile>
-                    <driver>${db.driver}</driver>
-                    <url>${db.url}</url>
-                    <username>${db.username}</username>
-                    <password>${db.password}</password>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>mysql</groupId>
-                        <artifactId>mysql-connector-java</artifactId>
-                        <version>${mysql.version}</version>
-                    </dependency>
-                </dependencies>
-                <executions>
-                    <execution>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>update</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+    </dependencies>
+
 </project>
 

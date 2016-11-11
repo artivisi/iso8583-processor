@@ -17,6 +17,7 @@ package com.artivisi.iso8583.persistence.service;
 
 import com.artivisi.iso8583.DataElement;
 import com.artivisi.iso8583.Mapper;
+import com.artivisi.iso8583.SubElement;
 import com.artivisi.iso8583.persistence.MapperService;
 import com.artivisi.iso8583.persistence.dao.MapperDao;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,5 +85,10 @@ public class MapperServiceImpl implements MapperService {
     @Override
     public Long countAllMapper() {
         return mapperDao.count();
+    }
+
+    @Override
+    public List<SubElement> findSubElementByElementNumber(Integer elementNumber, String name) {
+        return mapperDao.findSubElementByElementNumber(elementNumber, name);
     }
 }
